@@ -6,9 +6,18 @@
              Louisa Chong (l5chong@uwaterloo.ca)
 '''
 import sys
+import random
+
+def i():
+  u = random.random()
+  #TODO: generate packet 
+  print "u: {}".format(u) 
+  x = 0
+  #TODO: some inverse transform
+  print "x: {}".format(x) 
 
 def main():
-    print "Big Bang!"
+  generate()
 
 if __name__ == '__main__':
     main()
