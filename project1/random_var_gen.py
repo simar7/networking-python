@@ -7,25 +7,35 @@
 '''
 import sys
 import random
+import math
 import threading
 import time
 
+INTERVAL = 0.000001
+# number of the ticks which the program will be running for
+TICKS = 100
+# average number of packet generated
+LAMBDA = 100
+# service time received by a packet
+C = 1
+
 def i():
   u = random.random()
-  #TODO: generate packet
-  print "u: {}".format(u)
-  x = 0
-  #TODO: some inverse transform
-  print "x: {}".format(x)
+  x = (-1/LAMBDA)*math.log(1-u)
+  x_tick = x/INTERVAL
 
-def tick(interval):
-  threading.Timer(interval, tick, [interval]).start()
+def clock(interval):
+  threading.Timer(interval, clock, [interval]).start()
   i()
   print "time: {}".format(time.time())
 
 def main():
-  tick(float(sys.argv[1]))
-
+  global TICKS
+  TICKS = int(sys.argv[1])
+  global LAMBDA
+  LAMBDA= float(sys.argv[2])
+  global C
+  C = float(sys.argv[3])
 
 if __name__ == '__main__':
     main()
