@@ -7,17 +7,25 @@
 '''
 import sys
 import random
+import threading
+import time
 
 def i():
   u = random.random()
-  #TODO: generate packet 
-  print "u: {}".format(u) 
+  #TODO: generate packet
+  print "u: {}".format(u)
   x = 0
   #TODO: some inverse transform
-  print "x: {}".format(x) 
+  print "x: {}".format(x)
+
+def tick(interval):
+  threading.Timer(interval, tick, [interval]).start()
+  i()
+  print "time: {}".format(time.time())
 
 def main():
-  generate()
+  tick(float(sys.argv[1]))
+
 
 if __name__ == '__main__':
     main()
