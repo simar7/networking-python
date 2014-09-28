@@ -46,7 +46,6 @@ def next_generate_time(DISTRIBUTION, LAMBDA, TICK_DURATION, current_tick):
         raise Exception("Unknow distriution")
 
 def transmitter(ARRIVAL_DIST, LAMBDA, TICK_DURATION, TOTAL_TICKS, current_tick, packet_queue):
-    print "[%s]: queue size: %s" % (transmitter.__name__, packet_queue.qsize())
     next_generation = next_generate_time(ARRIVAL_DIST, LAMBDA, TICK_DURATION, current_tick.value)
     # calculate when to create new packet
     while (current_tick.value < int(TOTAL_TICKS)-1):
