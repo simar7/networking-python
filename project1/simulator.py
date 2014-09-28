@@ -29,10 +29,11 @@ import math
 
 # TODO: I think this is okay but I'll ask the TA and the prof.
 # worst case we will end up writing our own clock.
-def tickTock(tickDuration, TOTAL_TICKS, update_tick):
+def tickTock(tickDuration, TOTAL_TICKS, update_tick, lock):
     for tick in xrange(0, int(TOTAL_TICKS)):
         print "[%s]: Current tick %s" % (tickTock.__name__, tick)
-        update_tick.value = tick
+        with lock:
+            update_tick.value = tick
         time.sleep(float(tickDuration))
 
 # TODO: refactor the constants with the global values
@@ -64,7 +65,8 @@ def transmitter(ARRIVAL_DIST, LAMBDA, TICK_DURATION, TOTAL_TICKS, current_tick, 
 
 def receiver(TICK_DURATION, TOTAL_TICKS, SERVICE_TIME, PACKET_LENGTH, current_tick, packet_queue):
     next_service_time = 0
-    service_ticks  = int(SERVICE_TIME)/(int(PACKET_LENGTH)*int(TICK_DURATION))
+    service_time = int(PACKET_LENGTH)/int(SERVICE_TIME)
+    service_ticks = math.ceil(service_time/int(TICK_DURATION))
     print "[%s]: service interval: %s" % (receiver.__name__, service_ticks)
     # TODO: recieve packet at the correct tick, this is written to test the transmitter
     while (current_tick.value < int(TOTAL_TICKS)-1):
@@ -100,13 +102,15 @@ def init():
     # average number of packets generated per second
     parser.add_argument('--lambda', action="store", default="1")
     # packet length in bits
-    parser.add_argument('--L', action="store", default="2000")
+    parser.add_argument('-L', action="store", default="2000")
     # service time for each packet per second
-    parser.add_argument('--C', action="store", default="6000")
+    parser.add_argument('-C', action="store", default="500")
 
     # args is a type dict.
     argsDict = vars(parser.parse_args())
 
+    # lock for timer
+    lock = multiprocessing.Lock()
     # shared objects between processes
     # create a process queue
     if (argsDict['size'] == "inf"):
@@ -121,7 +125,7 @@ def init():
     # Init our processes.
     # TODO: Find a better way of doing this
     tickTockPID = multiprocessing.Process(target=tickTock,
-      args=(argsDict['tickLen'], argsDict['numOfTicks'], current_tick))
+      args=(argsDict['tickLen'], argsDict['numOfTicks'], current_tick, lock))
     transmitterPID = multiprocessing.Process(target=transmitter,
       args=(argsDict['arrival'], argsDict['lambda'], argsDict['tickLen'], argsDict['numOfTicks'],
             current_tick, packet_queue))
