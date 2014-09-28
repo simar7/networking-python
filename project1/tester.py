@@ -8,7 +8,7 @@
 import subprocess
 
 def main():
-    test = './simulator.py --arrival M --service M --tickLen 1 --numOfTicks 10'
+    test = './simulator.py --arrival M --service M --tickLen 100 --numOfTicks 10'
     process = subprocess.Popen(test, shell=True)
 
 if __name__ == '__main__':

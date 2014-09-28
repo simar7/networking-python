@@ -31,10 +31,14 @@ import math
 # worst case we will end up writing our own clock.
 def tickTock(tickDuration, TOTAL_TICKS, update_tick, lock):
     for tick in xrange(0, int(TOTAL_TICKS)):
+        tick_tick_what = 0
+        while (tick_tick_what < int(tickDuration)):
+            # print "[%s]: Current tick_tick_what value %s" % (tickTock.__name__, tick_tick_what)
+            tick_tick_what += 1
         print "[%s]: Current tick %s" % (tickTock.__name__, tick)
         with lock:
             update_tick.value = tick
-        time.sleep(float(tickDuration))
+        # time.sleep(float(tickDuration))
 
 # TODO: refactor the constants with the global values
 def next_generate_time(DISTRIBUTION, LAMBDA, TICK_DURATION, current_tick):
