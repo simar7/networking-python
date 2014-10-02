@@ -28,6 +28,14 @@ import math
 import Queue
 
 '''
+Packet object
+'''
+class Packet:
+    transmit_time = None
+    def __init__(self, tick):
+        self.transmit_time = tick
+
+'''
 Pre-defined constants
 updated in init when user enter parameter
 '''
@@ -57,24 +65,45 @@ def tickTock():
 
     next_generation = None
     next_service =  0
+    packet_in_queue = 0
+    packet_sojourn = 0
+    packet_transmitted = 0
+    packet_recieved = 0
+    packet_dropped = 0
+    receiver_idle = 0
     for tick in xrange(0, TOTAL_TICKS):
-        print "[%s] current tick: %s" % (tickTock.__name__, tick)
+        # print "[%s] current tick: %s" % (tickTock.__name__, tick)
+
         # Transmitter
         if next_generation == None:
             next_generation = nextGenTime(tick)
         if tick >= next_generation:
-            transmitter(packet_queue)
+            is_dropped = transmitter(tick, packet_queue)
+            packet_transmitted += 1
+            if not is_dropped:
+                packet_dropped += 1
             next_generation = nextGenTime(tick)
-            print "[%s] next generation: %s" % (tickTock.__name__, next_generation)
+            # print "[%s] next generation: %s" % (tickTock.__name__, next_generation)
+
         # Receiver
         if tick >= next_service:
             if packet_queue.empty():
+                receiver_idle += 1
                 next_service += 1
             else:
-                receiver(packet_queue)
                 next_service = nextServeTime(tick)
-                print "[%s] next service: %s" % (tickTock.__name__, next_service)
-        # Receiver
+                packet = receiver(packet_queue)
+                # sojorn time = queing time + service time
+                packet_sojourn += (tick - packet.transmit_time + (next_service - tick))
+                packet_recieved += 1
+                # print "[%s] next service: %s" % (tickTock.__name__, next_service)
+        packet_in_queue += packet_queue.qsize()
+    print "packet transmitted: %s" % packet_transmitted
+    print "packet recieved: %s" % packet_recieved
+    print "packet dropped percent:  %s" % (packet_dropped / packet_transmitted)
+    print "server idle: %s" % receiver_idle
+    print "E[N]: %s" % (packet_in_queue/TOTAL_TICKS)
+    print "E[T]: %s" % (packet_sojourn/packet_recieved)
 
 def nextGenTime(current_tick):
     if GEN_DIST == 'M':
@@ -94,27 +123,27 @@ def nextServeTime(current_tick):
         raise Exception("Unknown distribution")
 
 
-def transmitter(packet_queue):
-    packet_data = "packet"
+def transmitter(tick, packet_queue):
+    packet_data = Packet(tick)
     if packet_queue.full():
-        print "[%s]: Failed to transmit: %s" % (transmitter.__name__, packet_data)
+        # print "[%s]: Failed to transmit: %s" % (transmitter.__name__, packet_data)
         return False
     else:
-        print "[%s]: Transmit: %s" % (transmitter.__name__, packet_data)
+        # print "[%s]: Transmit: %s" % (transmitter.__name__, packet_data)
         packet_queue.put(packet_data)
         return True
 
 def receiver(packet_queue):
     # This state should not occur
     if packet_queue.empty():
-        print "[%s] Server is idle" % (receiver.__name__)
-        return False
+        # print "[%s] Server is idle" % (receiver.__name__)
+        return None
     else:
-        print "[%s] Serve packet: %s" % (receiver.__name__, packet_queue.get())
-        return True
+        # print "[%s] Serve packet: %s" % (receiver.__name__, packet_queue.get())
+        return  packet_queue.get()
 
 def main(argv):
-    print "Program is starting..."
+    # print "Program is starting..."
     tickTock()
 
 def init():
