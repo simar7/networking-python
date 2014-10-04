@@ -19,56 +19,42 @@ Service Process Type (M, D, G):
 Buf Size (limited, infinite):
     Size of the buffer.
 '''
-import sys
-import time
-import array
+
 import random
 import argparse
 import math
 import Queue
 
-'''
-Packet object
-'''
+
 class Packet:
     transmit_time = None
+
     def __init__(self, tick):
         self.transmit_time = tick
 
-'''
-Pre-defined constants
-updated in init when user enter parameter
-'''
-# the distribution for the generation
-GEN_DIST      = 'M'
-# the distribution for the service
-SERVE_DIST    = 'D'
-# the tick intervals
-TICK_DURATION = 1
-# average number
-LAMBDA        = 1
-# total ticks
-TOTAL_TICKS   = 100
-# packet length in bits
-PACKET_LEN    = 2000
-# service time for each packet per second
-SERVICE_RATE  = 500
-# the size of the queue
-QUEUE_SIZE    = 'inf'
+
+GEN_DIST = None
+SERVE_DIST = None
+TICK_DURATION = 0
+LAMBDA = 0
+TOTAL_TICKS = 0
+PACKET_LEN = 0
+SERVICE_RATE = 0
+QUEUE_SIZE = 0
+
 
 def tickTock():
-    # define the queue for the simulation
     if (QUEUE_SIZE == "inf"):
         packet_queue = Queue.Queue()
     else:
         packet_queue = Queue.Queue(QUEUE_SIZE)
 
     next_generation = None
-    next_service =  0
+    next_service = 0
     packet_in_queue = 0
     packet_sojourn = 0
     packet_transmitted = 0
-    packet_recieved = 0
+    packet_received = 0
     packet_dropped = 0
     receiver_idle = 0
     for tick in xrange(0, TOTAL_TICKS):
@@ -95,29 +81,32 @@ def tickTock():
                 packet = receiver(packet_queue)
                 # sojorn time = queing time + service time
                 packet_sojourn += (tick - packet.transmit_time + (next_service - tick))
-                packet_recieved += 1
+                packet_received += 1
                 # print "[%s] next service: %s" % (tickTock.__name__, next_service)
         packet_in_queue += packet_queue.qsize()
+
     print "packet transmitted: %s" % packet_transmitted
-    print "packet recieved: %s" % packet_recieved
+    print "packet received: %s" % packet_received
     print "packet dropped percent:  %s" % (packet_dropped / packet_transmitted)
     print "server idle: %s" % receiver_idle
-    print "E[N]: %s" % (packet_in_queue/TOTAL_TICKS)
-    print "E[T]: %s" % (packet_sojourn/packet_recieved)
+    print "E[N]: %s" % (packet_in_queue / TOTAL_TICKS)
+    print "E[T]: %s" % (packet_sojourn / packet_received)
+
 
 def nextGenTime(current_tick):
     if GEN_DIST == 'M':
         gen_number = random.random()
-        gen_time = (-1/LAMBDA)*math.log(1-gen_number)
-        gen_tick = math.ceil(gen_time/TICK_DURATION)
+        gen_time = (-1 / LAMBDA) * math.log(1 - gen_number)
+        gen_tick = math.ceil(gen_time / TICK_DURATION)
         return (gen_tick + current_tick)
     else:
-        raise Exception("Unknown distriution")
+        raise Exception("Unknown distribution")
+
 
 def nextServeTime(current_tick):
     if SERVE_DIST == 'D':
-        service_time = int(PACKET_LEN)/int(SERVICE_RATE)
-        service_tick = math.ceil(service_time/int(TICK_DURATION))
+        service_time = int(PACKET_LEN) / int(SERVICE_RATE)
+        service_tick = math.ceil(service_time / int(TICK_DURATION))
         return (service_tick + current_tick)
     else:
         raise Exception("Unknown distribution")
@@ -133,6 +122,7 @@ def transmitter(tick, packet_queue):
         packet_queue.put(packet_data)
         return True
 
+
 def receiver(packet_queue):
     # This state should not occur
     if packet_queue.empty():
@@ -140,15 +130,17 @@ def receiver(packet_queue):
         return None
     else:
         # print "[%s] Serve packet: %s" % (receiver.__name__, packet_queue.get())
-        return  packet_queue.get()
+        return packet_queue.get()
+
 
 def main(argv):
     # print "Program is starting..."
     tickTock()
 
+
 def init():
-    parser = argparse.ArgumentParser(description = \
-            "M/D/1 and M/D/1/K Queue Simulation")
+    parser = argparse.ArgumentParser(description= \
+                                         "M/D/1 and M/D/1/K Queue Simulation")
     # distribution of arrive time
     parser.add_argument('--generation', action="store", default="M")
     # didtribution of service time
@@ -181,12 +173,17 @@ def init():
     global PACKET_LEN
     PACKET_LEN = int(argsDict['L'])
     global SERVICE_RATE
-    REVICE_RATE = argsDict['C']
+    SERVICE_RATE = argsDict['C']
     global QUEUE_SIZE
     QUEUE_SIZE = argsDict['size']
+    global GEN_DIST
+    GEN_DIST = argsDict['generation']
+    global SERVE_DIST
+    SERVE_DIST = argsDict['service']
 
     # Let it rip.
     main(argsDict)
 
+
 if __name__ == '__main__':
-  init()
+    init()
