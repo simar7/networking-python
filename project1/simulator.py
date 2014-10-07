@@ -95,10 +95,22 @@ def tickTock():
     print "packet transmitted: %s" % packet_transmitted
     print "packet received: %s" % packet_received
     print "packet dropped: %s" % packet_dropped
-    print "packet dropped percent: %s" % (packet_dropped * 100.0 / packet_transmitted)
+
+    if packet_transmitted != 0:
+        print "packet dropped percent: %s" % (packet_dropped * 100.0 / packet_transmitted)
+    else:
+        logging.error("[%s]: We didn't trasnmit anything! Yikes." % tickTock.__name__)
     print "server idle: %s" % receiver_idle
-    print "E[N]: %s" % (float(packet_in_queue) / TOTAL_TICKS)
-    print "E[T]: %s" % (float(packet_sojourn) / packet_received)
+
+    if TOTAL_TICKS != 0:
+        print "E[N]: %s" % (float(packet_in_queue) / TOTAL_TICKS)
+    else:
+        logging.error("[%s]: We didn't tick at all dawg. Something's fishy" % tickTock.__name__)
+
+    if packet_received != 0:
+        print "E[T]: %s" % (float(packet_sojourn) / packet_received)
+    else:
+        logging.error("[%s]: Someone stole all my packets, I got none :(" % tickTock.__name__)
 
 def nextGenTime(current_tick):
     if GEN_DIST == 'M':
