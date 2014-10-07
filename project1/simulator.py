@@ -20,6 +20,8 @@ Buf Size (limited, infinite):
     Size of the buffer.
 '''
 
+import sys
+import logging
 import random
 import argparse
 import math
@@ -60,20 +62,21 @@ def tickTock():
     receiver_idle = 0
 
     for tick in xrange(0, TOTAL_TICKS):
+        '''
         if (tick % 100000 == 0):
             print "[%s] current tick: %s" % (tickTock.__name__, tick)
+        '''
 
         # Transmitter
         if next_generation == None:
             next_generation = nextGenTime(tick)
-            print "next_gen = %s" % next_generation
         if tick >= next_generation:
             is_dropped = transmitter(tick, packet_queue)
             packet_transmitted += 1
             if not is_dropped:
                 packet_dropped += 1
             next_generation = nextGenTime(tick)
-            # print "[%s] next generation: %s" % (tickTock.__name__, next_generation)
+            logging.debug("[%s] next generation: %s" % (tickTock.__name__, next_generation))
 
         # Receiver
         if tick >= next_service:
@@ -86,7 +89,7 @@ def tickTock():
                 # sojorn time = queing time + service time
                 packet_sojourn += (tick - packet.transmit_time + (next_service - tick))
                 packet_received += 1
-                # print "[%s] next service: %s" % (tickTock.__name__, next_service)
+                logging.debug("[%s] next service: %s" % (tickTock.__name__, next_service))
         packet_in_queue += packet_queue.qsize()
 
     print "packet transmitted: %s" % packet_transmitted
@@ -119,10 +122,10 @@ def nextServeTime(current_tick):
 def transmitter(tick, packet_queue):
     packet_data = Packet(tick)
     if (packet_queue.qsize() == QUEUE_SIZE):
-        print "[%s]: Failed to transmit: %s" % (transmitter.__name__, packet_data.transmit_time)
+        logging.error("[%s]: Failed to transmit: %s" % (transmitter.__name__, packet_data.transmit_time))
         return False
     else:
-        print "[%s]: Transmit: %s" % (transmitter.__name__, packet_data.transmit_time)
+        logging.info("[%s]: Transmit: %s" % (transmitter.__name__, packet_data.transmit_time))
         packet_queue.put(packet_data)
         return True
 
@@ -130,11 +133,11 @@ def transmitter(tick, packet_queue):
 def receiver(packet_queue):
     # This state should not occur
     if packet_queue.empty():
-        print "[%s] Server is idle" % (receiver.__name__)
+        logging.warning("[%s] Server is idle" % (receiver.__name__))
         return None
     else:
         packet = packet_queue.get()
-        print "[%s] Serve packet: %s" % (receiver.__name__, packet.transmit_time)
+        logging.info("[%s] Serve packet: %s" % (receiver.__name__, packet.transmit_time))
         return packet
 
 def main(argv):
@@ -143,6 +146,7 @@ def main(argv):
 
 
 def init():
+    logging.basicConfig(stream=sys.stderr, level=logging.WARNING)
     parser = argparse.ArgumentParser(description= \
                                          "M/D/1 and M/D/1/K Queue Simulation")
     # distribution of arrive time
