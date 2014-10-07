@@ -66,6 +66,7 @@ def tickTock():
         # Transmitter
         if next_generation == None:
             next_generation = nextGenTime(tick)
+            print "next_gen = %s" % next_generation
         if tick >= next_generation:
             is_dropped = transmitter(tick, packet_queue)
             packet_transmitted += 1
@@ -100,7 +101,7 @@ def nextGenTime(current_tick):
         gen_number = random.random()
         gen_time = (-1.0 / LAMBDA) * math.log(1 - gen_number)
         gen_tick = math.ceil(gen_time / TICK_DURATION)
-        return int(gen_tick + current_tick)
+        return (gen_tick + current_tick)
     else:
         raise Exception("Unknown distribution")
 
@@ -177,7 +178,10 @@ def init():
     global SERVICE_RATE
     SERVICE_RATE = int(argsDict['C'])
     global QUEUE_SIZE
-    QUEUE_SIZE = int(argsDict['size'])
+    if argsDict['size'] == 'inf':
+        QUEUE_SIZE = "inf"
+    else:
+        int(argsDict['size'])
     global GEN_DIST
     GEN_DIST = argsDict['generation']
     global SERVE_DIST
