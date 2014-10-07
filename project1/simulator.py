@@ -198,7 +198,7 @@ def init():
     if argsDict['size'] == 'inf':
         QUEUE_SIZE = "inf"
     else:
-        int(argsDict['size'])
+        QUEUE_SIZE = int(argsDict['size'])
     global GEN_DIST
     GEN_DIST = argsDict['generation']
     global SERVE_DIST
