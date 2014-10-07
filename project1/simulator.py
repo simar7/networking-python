@@ -103,7 +103,7 @@ def nextGenTime(current_tick):
         gen_number = random.random()
         gen_time = (-1.0 / LAMBDA) * math.log(1 - gen_number)
         gen_tick = math.ceil(gen_time / TICK_DURATION)
-        return (gen_tick + current_tick)
+        return int(gen_tick + current_tick)
     else:
         raise Exception("Unknown distribution")
 
@@ -112,7 +112,7 @@ def nextServeTime(current_tick):
     if SERVE_DIST == 'D':
         service_time = float(PACKET_LEN) / SERVICE_RATE
         service_tick = math.ceil(service_time / TICK_DURATION)
-        return (service_tick + current_tick)
+        return int(service_tick + current_tick)
     else:
         raise Exception("Unknown distribution")
 
