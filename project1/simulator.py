@@ -60,7 +60,7 @@ def tickTock():
     receiver_idle = 0
 
     for tick in xrange(0, TOTAL_TICKS):
-        if (tick % 1000 == 0):
+        if (tick % 100000 == 0):
             print "[%s] current tick: %s" % (tickTock.__name__, tick)
 
         # Transmitter
@@ -90,10 +90,11 @@ def tickTock():
 
     print "packet transmitted: %s" % packet_transmitted
     print "packet received: %s" % packet_received
-    print "packet dropped percent:  %s" % (packet_dropped * 100.0 / packet_transmitted)
+    print "packet dropped: %s" % packet_dropped
+    print "packet dropped percent: %s" % (packet_dropped * 100.0 / packet_transmitted)
     print "server idle: %s" % receiver_idle
-    print "E[N]: %s" % (packet_in_queue * 100.0 / TOTAL_TICKS)
-    print "E[T]: %s" % (packet_sojourn * 100.0 / packet_received)
+    print "E[N]: %s" % (float(packet_in_queue) / TOTAL_TICKS)
+    print "E[T]: %s" % (float(packet_sojourn) / packet_received)
 
 def nextGenTime(current_tick):
     if GEN_DIST == 'M':
@@ -148,32 +149,32 @@ def init():
     # didtribution of service time
     parser.add_argument('--service', action="store", default="M")
     # number of servers
-    parser.add_argument('--num', action="store", default="1")
+    parser.add_argument('--num', action="store", type=int, default="1")
     # size of the queue
     parser.add_argument('--size', action="store", default="inf")
     # the tick intervals
-    parser.add_argument('--tickLen', action="store", default="1")
+    parser.add_argument('--tickLen', action="store", type=float, default="1.0")
     # number of ticks until the process ends
-    parser.add_argument('--numOfTicks', action="store", default="100")
+    parser.add_argument('--numOfTicks', action="store", type=int, default="100")
     # average number of packets generated per second
-    parser.add_argument('--lambda', action="store", default="100")
+    parser.add_argument('--lambda', action="store", type=float, default="100.0")
     # packet length in bits
-    parser.add_argument('-L', action="store", default="2000")
+    parser.add_argument('-L', action="store", type=int, default="2000")
     # service time in bits per second
-    parser.add_argument('-C', action="store", default="500")
+    parser.add_argument('-C', action="store", type=int, default="500")
 
     # args is a type dict.
     argsDict = vars(parser.parse_args())
 
     # fixed value for the program
     global TICK_DURATION
-    TICK_DURATION = float(argsDict['tickLen'])
+    TICK_DURATION = argsDict['tickLen']
     global TOTAL_TICKS
-    TOTAL_TICKS = int(argsDict['numOfTicks'])
+    TOTAL_TICKS = argsDict['numOfTicks']
     global LAMBDA
-    LAMBDA = float(argsDict['lambda'])
+    LAMBDA = argsDict['lambda']
     global PACKET_LEN
-    PACKET_LEN = int(argsDict['L'])
+    PACKET_LEN = argsDict['L']
     global SERVICE_RATE
     SERVICE_RATE = int(argsDict['C'])
     global QUEUE_SIZE
