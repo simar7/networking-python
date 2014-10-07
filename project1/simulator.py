@@ -66,6 +66,7 @@ def tickTock():
         # Transmitter
         if next_generation == None:
             next_generation = nextGenTime(tick)
+            print "next_gen = %s" % next_generation
         if tick >= next_generation:
             is_dropped = transmitter(tick, packet_queue)
             packet_transmitted += 1
@@ -176,9 +177,12 @@ def init():
     global PACKET_LEN
     PACKET_LEN = argsDict['L']
     global SERVICE_RATE
-    SERVICE_RATE = argsDict['C']
+    SERVICE_RATE = int(argsDict['C'])
     global QUEUE_SIZE
-    QUEUE_SIZE = int(argsDict['size'])
+    if argsDict['size'] == 'inf':
+        QUEUE_SIZE = "inf"
+    else:
+        int(argsDict['size'])
     global GEN_DIST
     GEN_DIST = argsDict['generation']
     global SERVE_DIST
