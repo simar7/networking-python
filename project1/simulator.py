@@ -21,6 +21,7 @@ Buf Size (limited, infinite):
 '''
 
 import sys
+import datetime, time
 import logging
 import random
 import argparse
@@ -111,6 +112,8 @@ def tickTock():
         print "E[T]: %s" % (float(packet_sojourn) / packet_received)
     else:
         logging.error("[%s]: Someone stole all my packets, I got none :(" % tickTock.__name__)
+
+    print "------END OF TEST : %s------" % (time.strftime("%H:%M:%S:%M", time.localtime()))
 
 def nextGenTime(current_tick):
     if GEN_DIST == 'M':
