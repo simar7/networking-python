@@ -49,6 +49,7 @@ def tickTock():
     else:
         packet_queue = Queue.Queue(QUEUE_SIZE)
 
+    # variables for collecting report data
     next_generation = None
     next_service = 0
     packet_in_queue = 0
@@ -57,8 +58,10 @@ def tickTock():
     packet_received = 0
     packet_dropped = 0
     receiver_idle = 0
+
     for tick in xrange(0, TOTAL_TICKS):
-        # print "[%s] current tick: %s" % (tickTock.__name__, tick)
+        if (tick % 1000 == 0):
+            print "[%s] current tick: %s" % (tickTock.__name__, tick)
 
         # Transmitter
         if next_generation == None:
@@ -87,38 +90,37 @@ def tickTock():
 
     print "packet transmitted: %s" % packet_transmitted
     print "packet received: %s" % packet_received
-    print "packet dropped percent:  %s" % (packet_dropped / packet_transmitted)
+    print "packet dropped percent:  %s" % (packet_dropped * 100.0 / packet_transmitted)
     print "server idle: %s" % receiver_idle
-    print "E[N]: %s" % (packet_in_queue / TOTAL_TICKS)
-    print "E[T]: %s" % (packet_sojourn / packet_received)
-
+    print "E[N]: %s" % (packet_in_queue * 100.0 / TOTAL_TICKS)
+    print "E[T]: %s" % (packet_sojourn * 100.0 / packet_received)
 
 def nextGenTime(current_tick):
     if GEN_DIST == 'M':
         gen_number = random.random()
-        gen_time = (-1 / LAMBDA) * math.log(1 - gen_number)
+        gen_time = (-1.0 / LAMBDA) * math.log(1 - gen_number)
         gen_tick = math.ceil(gen_time / TICK_DURATION)
-        return (gen_tick + current_tick)
+        return int(gen_tick + current_tick)
     else:
         raise Exception("Unknown distribution")
 
 
 def nextServeTime(current_tick):
     if SERVE_DIST == 'D':
-        service_time = int(PACKET_LEN) / int(SERVICE_RATE)
-        service_tick = math.ceil(service_time / int(TICK_DURATION))
-        return (service_tick + current_tick)
+        service_time = float(PACKET_LEN) / SERVICE_RATE
+        service_tick = math.ceil(service_time / TICK_DURATION)
+        return int(service_tick + current_tick)
     else:
         raise Exception("Unknown distribution")
 
 
 def transmitter(tick, packet_queue):
     packet_data = Packet(tick)
-    if packet_queue.full():
-        # print "[%s]: Failed to transmit: %s" % (transmitter.__name__, packet_data)
+    if (packet_queue.qsize() == QUEUE_SIZE):
+        print "[%s]: Failed to transmit: %s" % (transmitter.__name__, packet_data.transmit_time)
         return False
     else:
-        # print "[%s]: Transmit: %s" % (transmitter.__name__, packet_data)
+        print "[%s]: Transmit: %s" % (transmitter.__name__, packet_data.transmit_time)
         packet_queue.put(packet_data)
         return True
 
@@ -126,15 +128,15 @@ def transmitter(tick, packet_queue):
 def receiver(packet_queue):
     # This state should not occur
     if packet_queue.empty():
-        # print "[%s] Server is idle" % (receiver.__name__)
+        print "[%s] Server is idle" % (receiver.__name__)
         return None
     else:
-        # print "[%s] Serve packet: %s" % (receiver.__name__, packet_queue.get())
-        return packet_queue.get()
-
+        packet = packet_queue.get()
+        print "[%s] Serve packet: %s" % (receiver.__name__, packet.transmit_time)
+        return packet
 
 def main(argv):
-    # print "Program is starting..."
+    print "Program is starting..."
     tickTock()
 
 
@@ -154,7 +156,7 @@ def init():
     # number of ticks until the process ends
     parser.add_argument('--numOfTicks', action="store", default="100")
     # average number of packets generated per second
-    parser.add_argument('--lambda', action="store", default="1")
+    parser.add_argument('--lambda', action="store", default="100")
     # packet length in bits
     parser.add_argument('-L', action="store", default="2000")
     # service time in bits per second
@@ -173,9 +175,9 @@ def init():
     global PACKET_LEN
     PACKET_LEN = int(argsDict['L'])
     global SERVICE_RATE
-    SERVICE_RATE = argsDict['C']
+    SERVICE_RATE = int(argsDict['C'])
     global QUEUE_SIZE
-    QUEUE_SIZE = argsDict['size']
+    QUEUE_SIZE = int(argsDict['size'])
     global GEN_DIST
     GEN_DIST = argsDict['generation']
     global SERVE_DIST
