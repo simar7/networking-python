@@ -15,8 +15,11 @@ times = 1
 
 # TODO: We can do another argparse here but whatever.
 def main(args):
-    if args[1] == 'Q2':
-        global times
+    if args[1] == 'sanity':
+        times = int(args[2])
+        testList.append('./simulator.py --generation M --tickLen 0.0000001 --numOfTicks 1000000 --service D --lambda 100 -L 2000 -C 1000000 --size 100')
+
+    elif args[1] == 'Q2':
         times = int(args[2])
         testList.append('./simulator.py --generation M --tickLen 0.0000001 --numOfTicks 1000000 --service D --lambda 100 -L 2000 -C 1000000 --size inf')
 
