@@ -60,8 +60,10 @@ def tickTock():
     receiver_idle = 0
 
     for tick in xrange(0, TOTAL_TICKS):
-        if (tick % 1000 == 0):
+        '''
+        if (tick % 10000 == 0):
             print "[%s] current tick: %s" % (tickTock.__name__, tick)
+        '''
 
         # Transmitter
         if next_generation == None:
@@ -110,7 +112,7 @@ def nextServeTime(current_tick):
     if SERVE_DIST == 'D':
         service_time = float(PACKET_LEN) / SERVICE_RATE
         service_tick = math.ceil(service_time / TICK_DURATION)
-        return int(service_tick + current_tick)
+        return (service_tick + current_tick)
     else:
         raise Exception("Unknown distribution")
 
