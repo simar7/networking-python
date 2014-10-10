@@ -44,7 +44,7 @@ TOTAL_TICKS = 0
 PACKET_LEN = 0
 SERVICE_RATE = 0
 QUEUE_SIZE = 0
-
+RHO_VAL = 0.0
 
 def tickTock():
     if (QUEUE_SIZE == "inf"):
@@ -96,6 +96,7 @@ def tickTock():
     print "packet transmitted: %s" % packet_transmitted
     print "packet received: %s" % packet_received
     print "packet dropped: %s" % packet_dropped
+    print "rho val: %s" % RHO_VAL
 
     if packet_transmitted != 0:
         print "packet dropped percent: %s" % (packet_dropped * 100.0 / packet_transmitted)
@@ -182,6 +183,9 @@ def init():
     parser.add_argument('-L', action="store", type=int, default="2000")
     # service time in bits per second
     parser.add_argument('-C', action="store", type=int, default="500")
+    # add a input arg for recording the rho Val
+    parser.add_argument('--rho', action="store", type=float, default="0.0")
+
 
     # args is a type dict.
     argsDict = vars(parser.parse_args())
@@ -206,6 +210,8 @@ def init():
     GEN_DIST = argsDict['generation']
     global SERVE_DIST
     SERVE_DIST = argsDict['service']
+    global RHO_VAL
+    RHO_VAL = argsDict['rho']
 
     # Let it rip.
     main(argsDict)

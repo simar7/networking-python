@@ -36,7 +36,7 @@ def main(args):
         # lambda_calc = (C * rho)/L
         for rhoval in rhoValues:
             lambda_cal = (1000000 * float(rhoval)) / 2000
-            testList.append('./simulator.py --generation M --tickLen 0.0000001 --numOfTicks 1000000 --service D --lambda %s' % lambda_cal)
+            testList.append('./simulator.py --generation M --tickLen 0.0000001 --numOfTicks 1000000 --service D --lambda %s --rho %s' % (lambda_cal, rhoval))
 
     try:
         for repeat in xrange(0, times):
