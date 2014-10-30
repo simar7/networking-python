@@ -10,6 +10,14 @@ import sys
 import argparse
 import logging
 
+
+SERVERS = 0
+ARRIVAL_RATE = 0
+LAN_SPEED = 0
+PACKET_LEN = 0
+P_PARM = "1"
+
+
 def main(argv):
     print "Program is starting..."
 
@@ -27,16 +35,21 @@ def init():
     # packet length in bits (default = 1500bytes
     parser.add_argument('-L', action="store", type=int, default="6000")
     # persistence parameter
-    parser.add_argument('-P', action="store", type=float, default="1")
+    parser.add_argument('-P', action="store", type=str, default="1")
 
     # args is a type dict.
     argsDict = vars(parser.parse_args())
 
-    servers      = argsDict['N']
-    arrival_rate = argsDict['A']
-    lan_speed    = argsDict['W']
-    packet_len   = argsDict['L']
-    p_parm       = argsDict['P']
+    global SERVERS
+    SERVERS      = argsDict['N']
+    global ARRIVAL_RATE
+    ARRIVAL_RATE = argsDict['A']
+    global LAN_SPEED
+    LAN_SPEED    = argsDict['W']
+    global PACKET_LEN
+    PACKET_LEN   = argsDict['L']
+    global P_PARM
+    P_PARM       = argsDict['P']
 
     # Let it rip.
     main(argsDict)
