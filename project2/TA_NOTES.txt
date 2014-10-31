@@ -1,0 +1,22 @@
+Simulating a medium.
+Generation is the same as previous project. (Poisson?)
+Keep nodes and medium seperate.
+bit times to tick times
+dont need a desitination in the frames, as everyone will get the packet anyways <-- we could keep a track of this inside the main tick loop, so we deqeue whenever the time elapses.
+assume speed of ethernet.
+need to keep a track of T_r? what..
+
+1) need a signal for the frame (i think this is to indicate a node about the presence of a packet)
+2) keep track of which node the frame/packet belongs to. (only removed when all nodes have received the packet).
+
+
+sense/transmit:
+case 1) non-persistant
+        - always sense for 96 bit times.
+
+case 2) p-persistant
+        - below p
+            - wait for random time.
+            - then check
+            - if still busy --> treat as a collision and use the backoff process.
+            - if not busy then go back.
