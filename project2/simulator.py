@@ -25,19 +25,23 @@ TICK_DURATION   = 0
 D_TRANS         = 0
 D_TOTAL_PROP    = 0
 MAX_LINK_SIZE   = 0
-NODE_LOCATION_ARR = []
-NODE_TIMINGS_ARR = []
-NODES_KEY_TIME_DICT = {} # key:value <=> node#:tx_time
-
+NODES_SRC_TIME_DICT = {} # key:value <=> src_node_thread:tx_time
+NODES_SRC_DEST_DICT = {} # key:value <=> src_node_thread:dst_node_thread
+NODES_SRC_IDLE_DICT = {} # key:value <=> src_node_thread:idle_time
 packet_dropped = 0
 packet_transmitted = 0
 packet_collided = 0
+sender_threads = []
+link_queue = []
+
+GLOBAL_TICK = 0
 
 class Packet:
-    def __init__(self, sender, sender_index, send_time):
+    def __init__(self, sender, sender_index, send_time, destination):
         self.sender = sender
         self.sender_index = sender_index
         self.send_time = send_time
+        self.destination = destination
 
     def is_detected(self, from_index, current_tick):
         """ Check if the the packet can be sensed from the given index
@@ -57,127 +61,119 @@ class Packet:
             return True
         return False
 
+# FIXME: @clouisa: Is this right?
 def nextGenTime(current_tick):
-    gen_number = random.randint(0, 10)
+    gen_number = random.randint(0, TICK_DURATION)
     return int(gen_tick + current_tick)
 
 # TODO: Qualify as a collision if the queue was found
 # to have packets from two diff sources
-def collisionDetector(link_queue):
+def collisionDetector():
     # TODO: We could do this better with a lambda function.
     listOfSrcs = []
-    for src in link_queue:
-        listOfSrc.append(src.data)
+    for packet in link_queue:
+        listOfSrc.append(packet.data)
     if len(set(listOfSrcs)) != len(listOfSrcs):
-        logging.info("[%s]: Collision Detected!: %s" % (transmitter.__name__))
+        logging.info("[%s]: Dupe found, Collision Detected!: %s" % (collisionDetector.__name__))
         return True
     else:
         return False
 
 # TODO: We probably need more logic than just popping elements
 # to make the link clean.
-def jammingSignal(link_queue):
+def jammingSignal():
     for counter in xrange(0, len(link_queue)):
+        global link_queue
         link_queue.pop()
 
 # TODO: Create a Binary Exponential Backoff timer.
 def BinaryBackoff():
     return True
 
-def transmit_worker(tick, src, dst, link_queue):
-    newPacket = Packet(src, dst)
-
-    # 1-persistance case:
-    if P_PRAM == 1:
-        while newPacket.is_detected(src, tick):
-            logging.info("[%s]: Channel Busy, gadfly waiting.." % (transmit_worker.__name__))
-
-    # non-persistance case:
-    elif P_PRAM == 2:
-        while newPacket.is_detected(src, tick):
-            waitFor = randint(0, tick)
-            logging.info("[%s]: Channel Busy, waiting for %s (random) time.." % (transmit_worker.__name__, waitFor))
-            time.sleep(waitFor)
-
-    # TODO: p-persistance case:
-    elif P_PRAM == 3:
-        print "some other cool yet to be implemented logic"
-
-    if (link_queue.qsize() == MAX_LINK_SIZE):
-        logging.error("[%s]: Failed to transmit: src:%s | dest:%s" % \
-                (transmit_worker.__name__, newPacket.source, newPacket.destination))
-        global packet_dropped
-        packet_dropped += 1
+# Returns true or false depending on if it's the right time to send.
+def is_right_time(inputThread):
+    if GLOBAL_TICK >= NODES_SRC_TIME_DICT[inputThread]:
+        return True
     else:
-        logging.info("[%s]: Transmitting: src:%s | dest:%s" % \
-                (transmit_worker.__name__, newPacket.source, newPacket.destination))
-        try:
-            link_queue.put(newPacket)
-        except Exception as e
-            logging.error("[%s]: Exception was raised! msg: %s" % (transmit_worker.__name__, e.message))
-        finally:
-            global packet_transmitted
-            packet_transmitted += 1
+        return False
 
-    if collisionDetector(link_queue):
-        waitFor = randint(0, tick)
-        logging.warn("[%s]: Collision Detected, waiting for: %s ticks.."%\
-                (transmit_worker.__name__, waitFor))
-        global packet_collided
-        packet_collided += 1
-        time.sleep(waitFor)
+def transmit_worker():
+    while True:
+        src_name = threading.currentThread().getName()
+        src_idx = sender_threads[threading.currentThread()].index()
+        send_time = NODES_SRC_TIME_DICT[src_name]
+        dst = NODES_SRC_DEST_DICT[src_name]
+        newPacket = Packet(src_name, src_idx, send_time, dst)
+
+        # 1-persistance case:
+        if P_PRAM == 1:
+            while newPacket.is_detected(src, tick):
+                logging.info("[%s]: Channel Busy, gadfly waiting.." % (src_name))
+
+        # non-persistance case:
+        elif P_PRAM == 2:
+            while newPacket.is_detected(src, tick):
+                waitFor = randint(0, tick)
+                logging.info("[%s]: Channel Busy, waiting for %s (random) time.." % (src_name, waitFor))
+                time.sleep(waitFor)
+
+        # TODO: p-persistance case:
+        elif P_PRAM == 3:
+            print "some other cool yet to be implemented logic"
+
+        if (link_queue.qsize() == MAX_LINK_SIZE):
+            logging.error("[%s]: Failed to transmit: src:%s | dest:%s" % \
+                    (src_name, newPacket.source, newPacket.destination))
+            global packet_dropped
+            packet_dropped += 1
+
+        # Is it the right time for me as a thread to transmit?
+        if is_right_time(src_name):
+            logging.info("[%s]: Transmitting: src:%s | dest:%s" % \
+                    (src_name, newPacket.source, newPacket.destination))
+            try:
+                global link_queue
+                link_queue.put(newPacket)
+            except Exception as e
+                logging.error("[%s]: Exception was raised! msg: %s" % (src_name, e.message))
+            finally:
+                global packet_transmitted
+                packet_transmitted += 1
+                # Update for the next generation value for this thread.
+                global NODES_SRC_TIME_DICT
+                NODES_SRC_TIME_DIRCT[src_name] = nextGenTime(GLOBAL_TICK)
+                if collisionDetector():
+                    waitFor = randint(0, GLOBAL_TICK)
+                    logging.warn("[%s]: Collision Detected, waiting for: %s ticks.."%\
+                            (threading.currentThread().getName(), waitFor))
+                    global packet_collided
+                    packet_collided += 1
+                    time.sleep(waitFor)
+                    jammingSignal()
+        else:
+            logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
+            global NODES_SRC_IDLE_DICT
+            NODES_SRC_IDLE_DICT[src] += 1
+
 
 # The scheduler basically calculates randomly generated
 # times at which each node in the system would act as a transmitter.
 # This assigns an initial order in which the nodes should be acting as transmitters
 # each time a node tranmits, it request for the nextGenTime()
 # FIXME: Take into account the tick size for proper generation times.
-def scheduler(node_array, current_tick):
-    for node in xrange(0, len(node_array)):
-        global NODES_KEY_TIME_DICT
+def scheduler(sender_thread_list, current_tick):
+    for node in sender_thread_list:
+        global NODES_SRC_TIME_DICT
         # FIXME: Fix the random.random() to something that useful (Poisson distribution)
-        NODES_TIMINGS_ARR[node] = current_tick + random.random()
-
-    # Now re-create a list of nodes that will be in order of execution.
-    node_tx_list = sorted(NODES_KEY_TIME_DICT, key=NODES_KEY_TIME_DICT.get)
-    return node_tx_list
+        NODES_SRC_TIME_DICT[node] = current_tick + random.random()
+        # randomly schedule destinations for senders.
+        global NODES_SRC_DEST_DICT
+        NODES_SRC_DEST_DICT[node] = sender_thread_list[random.randint(0, len(sender_thread_list)]
 
 def tickTock():
-    global MAX_LINK_SIZE
-    MAX_LINK_SIZE = LAN_SPEED * 8
-    link_queue = Queue.Queue(MAX_LINK_SIZE)
-
-    # First time scheduling at tick = 0
-    inorder_exec_list = scheduler(NODE_LOCATION_ARR, 0)
-
-    current_node = 0
     for tick in xrange(0, TOTAL_TICKS):
-        # it's time to transmit:
-        if tick >= NODES_KEY_TIME_DICT[inorder_exec_list[current_node]]:
-            tx_ret = transmit_data(tick, src_node, dst_node, link_queue)
-            global packet_transmitted
-            packet_transmitted += 1
-            if not tx_ret:
-                global packet_dropped
-                packet_dropped += 1
-            global NODES_KEY_TIME_DICT
-            # Update the current node's value for next generation.
-            # and increment the current_node counter to point to the next node.
-            NODES_KEY_TIME_DICT[current_node] = nextGenTime(tick)
-            current_node += 1
-
-            # If we have transmitted atleast once from each node
-            # Need to call the scheduler again to re-calc all new transmit times.
-            if current_node >= len(NODES_KEY_TIME_DICT):
-                inorder_exec_list = scheduler(NODE_LOCATION_ARR, tick)
-
-            # check at every tick if there was a collision
-            # FIXME: I don't think this is the right logic, @clouisa to add.
-            is_Collision = collisionDetector(link_queue)
-            if is_Collision:
-                global packet_collided
-                packet_collided += 1
-                jammingSignal(link_queue)
+        global GLOBAL_TICK
+        GLOBAL_TICK += TICK_DURATION
 
         # Timely receive logic
         # TODO: Needs @clouisa 's logic for determining the speed of packet transmission.
@@ -236,13 +232,26 @@ def init():
     global D_TOTAL_PROP
     D_TOTAL_PROP = math.ceil((10*(SERVERS-1)) / (ETHERNET_SPEED*TICK_DURATION))
 
-    global NODE_LOCATION_ARR
-    NODE_LOCATION_ARR = NODE_LOCATION_ARR.extend(xrange(SERVERS))
-    global NODE_TIMINGS_ARR
-    NODE_TIMINGS_ARR = [0] * SERVERS
-    global NODES_KEY_TIME_DICT
-    for node in xrange(0, SERVERS):
-        NODES_KEY_TIME_DICT[node] = 0
+    global MAX_LINK_SIZE
+    MAX_LINK_SIZE = LAN_SPEED * 8
+    link_queue = Queue.Queue(MAX_LINK_SIZE)
+
+    # Each node is a possible sender and is a thread.
+    for thread in xrange(0, SERVERS):
+        t = threading.Thread(target=transmit_worker)
+        global sender_threads
+        sender_threads.append(t)
+        global NODES_SRC_TIME_DICT
+        NODES_SRC_TIME_DICT[t.getName()] = 0
+        global NODES_SRC_IDLE_DICT
+        NODES_SRC_IDLE_DICT[t.getName()] = 0
+
+    # Call the scheduler right now to determine times to send.
+    scheduler(sender_threads, 0)
+
+    # Start all the threads.
+    for thread in xrange(0, SERVERS):
+        sender_threads[thread].start()
 
     # Let it rip.
     main(argsDict)
