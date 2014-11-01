@@ -28,16 +28,12 @@ MAX_LINK_SIZE   = 0
 NODE_LOCATION_ARR = []
 NODE_TIMINGS_ARR = []
 NODES_KEY_TIME_DICT = {} # key:value <=> node#:tx_time
-mutex = Lock()
 
 packet_dropped = 0
 packet_transmitted = 0
 packet_collided = 0
 
 class Packet:
-    sender = None
-    sender_index = -1
-    send_time = -2
     def __init__(self, sender, sender_index, send_time):
         self.sender = sender
         self.sender_index = sender_index
@@ -46,31 +42,20 @@ class Packet:
     def is_detected(self, from_index, current_tick):
         """ Check if the the packet can be sensed from the given index
         Keyword arguments:
-        @from_index: index where the are sending from
+        @from_index: index where they are sending from
         @current_tick: current time of the simulation (in ticks)
         """
-        # how much time have passed
+        # how much time has passed
         time_passed = current_tick - self.send_time
         # how far did the signal propagate to on the smaller index side
         min_index = self.sender_index - time_passed
         # how far did the signal propagate to on the larger index side
         max_index = self.sender_index + time_passed
-        # determin if the packet is detected
+        # determine if the packet is detected
         if (((max_index >= from_index) and (from_index > self.sender_index))
          or ((min_index <= from_index) and (from_index <= self.sender_index))):
             return True
         return False
-
-'''
-# TODO: Do we need this?
-def src_dst_picker(node_list):
-    src = random.randint(0, len(node_list)-1)
-    dst = random.randint(0, len(node_list)-1)
-    # unlikely to happen
-    if src == dst:
-        dst = random.randint(0, len(node_list)-1)
-    return ([src, dst])
-'''
 
 def nextGenTime(current_tick):
     gen_number = random.randint(0, 10)
@@ -100,47 +85,47 @@ def BinaryBackoff():
     return True
 
 def transmit_worker(tick, src, dst, link_queue):
-    while True:
-        # 1-persistance case:
-        if P_PRAM == 1:
-            while mutex_locked():
-                logging.info("[%s]: Channel Busy, gadfly waiting.." % (transmit_worker.__name__))
+    newPacket = Packet(src, dst)
 
-        # non-persistance case:
-        elif P_PRAM == 2:
-            while mutex_locked():
-                waitFor = randint(0, tick)
-                logging.info("[%s]: Channel Busy, waiting for %s (random) time.." % (transmit_worker.__name__, waitFor))
-                time.sleep(waitFor)
+    # 1-persistance case:
+    if P_PRAM == 1:
+        while newPacket.is_detected(src, tick):
+            logging.info("[%s]: Channel Busy, gadfly waiting.." % (transmit_worker.__name__))
 
-        # TODO: p-persistance case:
-        elif P_PRAM == 3:
-            print "some other cool yet to be implemented logic"
-
-        newPacket = Packet(src, dst)
-        if (link_queue.qsize() == MAX_LINK_SIZE):
-            logging.error("[%s]: Failed to transmit: src:%s | dest:%s" % \
-                    (transmit_worker.__name__, newPacket.source, newPacket.destination))
-            global packet_dropped
-            packet_dropped += 1
-        else:
-            logging.info("[%s]: Transmitting: src:%s | dest:%s" % \
-                    (transmit_worker.__name__, newPacket.source, newPacket.destination))
-            mutex.acquire()
-            try:
-                link_queue.put(newPacket)
-            finally:
-                mutex.release()
-                global packet_transmitted
-                packet_transmitted += 1
-
-        if collisionDetector(link_queue):
+    # non-persistance case:
+    elif P_PRAM == 2:
+        while newPacket.is_detected(src, tick):
             waitFor = randint(0, tick)
-            logging.warn("[%s]: Collision Detected, waiting for: %s ticks.."%\
-                    (transmit_worker.__name__, waitFor))
-            global packet_collided
-            packet_collided += 1
+            logging.info("[%s]: Channel Busy, waiting for %s (random) time.." % (transmit_worker.__name__, waitFor))
             time.sleep(waitFor)
+
+    # TODO: p-persistance case:
+    elif P_PRAM == 3:
+        print "some other cool yet to be implemented logic"
+
+    if (link_queue.qsize() == MAX_LINK_SIZE):
+        logging.error("[%s]: Failed to transmit: src:%s | dest:%s" % \
+                (transmit_worker.__name__, newPacket.source, newPacket.destination))
+        global packet_dropped
+        packet_dropped += 1
+    else:
+        logging.info("[%s]: Transmitting: src:%s | dest:%s" % \
+                (transmit_worker.__name__, newPacket.source, newPacket.destination))
+        try:
+            link_queue.put(newPacket)
+        except Exception as e
+            logging.error("[%s]: Exception was raised! msg: %s" % (transmit_worker.__name__, e.message))
+        finally:
+            global packet_transmitted
+            packet_transmitted += 1
+
+    if collisionDetector(link_queue):
+        waitFor = randint(0, tick)
+        logging.warn("[%s]: Collision Detected, waiting for: %s ticks.."%\
+                (transmit_worker.__name__, waitFor))
+        global packet_collided
+        packet_collided += 1
+        time.sleep(waitFor)
 
 # The scheduler basically calculates randomly generated
 # times at which each node in the system would act as a transmitter.
@@ -162,12 +147,12 @@ def tickTock():
     MAX_LINK_SIZE = LAN_SPEED * 8
     link_queue = Queue.Queue(MAX_LINK_SIZE)
 
-    # First time scheduling to tick = 0
+    # First time scheduling at tick = 0
     inorder_exec_list = scheduler(NODE_LOCATION_ARR, 0)
 
     current_node = 0
     for tick in xrange(0, TOTAL_TICKS):
-        #src_node, dst_node = src_dst_picker(NODE_LOCATION_ARR)
+        # it's time to transmit:
         if tick >= NODES_KEY_TIME_DICT[inorder_exec_list[current_node]]:
             tx_ret = transmit_data(tick, src_node, dst_node, link_queue)
             global packet_transmitted
@@ -186,6 +171,8 @@ def tickTock():
             if current_node >= len(NODES_KEY_TIME_DICT):
                 inorder_exec_list = scheduler(NODE_LOCATION_ARR, tick)
 
+            # check at every tick if there was a collision
+            # FIXME: I don't think this is the right logic, @clouisa to add.
             is_Collision = collisionDetector(link_queue)
             if is_Collision:
                 global packet_collided
