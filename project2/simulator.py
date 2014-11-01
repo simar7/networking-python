@@ -14,17 +14,17 @@ import math
 import threading
 from threading import Thread, Lock
 
-SERVERS = 0
-ARRIVAL_RATE = 0
-LAN_SPEED = 0
-PACKET_LEN = 0
-TOTAL_TICKS = 0
-P_PARM         = "1"
-ETHERNET_SPEED = 2e10     # propagation speed of ethernet
-TICK_DURATION  = 0
-D_TRANS        = 0
-D_TOTAL_PROP   = 0
-MAX_LINK_SIZE = 0
+SERVERS         = 0
+ARRIVAL_RATE    = 0
+LAN_SPEED       = 0
+PACKET_LEN      = 0
+TOTAL_TICKS     = 0
+P_PARM          = "1"
+ETHERNET_SPEED  = 2e10
+TICK_DURATION   = 0
+D_TRANS         = 0
+D_TOTAL_PROP    = 0
+MAX_LINK_SIZE   = 0
 NODE_LOCATION_ARR = []
 NODE_TIMINGS_ARR = []
 NODES_KEY_TIME_DICT = {} # key:value <=> node#:tx_time
