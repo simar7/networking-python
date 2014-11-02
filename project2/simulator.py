@@ -16,26 +16,29 @@ import math
 import threading
 from threading import Thread, Lock
 
-SERVERS         = 0
-ARRIVAL_RATE    = 0
-LAN_SPEED       = 0
-PACKET_LEN      = 0
-TOTAL_TICKS     = 0
-P_PARM          = "1"
-ETHERNET_SPEED  = 2e10
-TICK_DURATION   = 0
-D_TRANS         = 0
-D_TOTAL_PROP    = 0
-MAX_LINK_SIZE   = 0
-NODES_SRC_LIST = []
+SERVERS             = 0
+ARRIVAL_RATE        = 0
+LAN_SPEED           = 0
+PACKET_LEN          = 0
+TOTAL_TICKS         = 0
+P_PARM              = "1"
+ETHERNET_SPEED      = 2e10
+TICK_DURATION       = 0
+D_TRANS             = 0
+D_TOTAL_PROP        = 0
+MAX_LINK_SIZE       = 0
+packet_dropped      = 0
+packet_transmitted  = 0
+packet_collided     = 0
+NODES_SRC_LIST      = []
 NODES_SRC_TIME_DICT = {} # key:value <=> src_node_thread:tx_time
 NODES_SRC_DEST_DICT = {} # key:value <=> src_node_thread:dst_node_thread
 NODES_SRC_IDLE_DICT = {} # key:value <=> src_node_thread:idle_time
-packet_dropped = 0
-packet_transmitted = 0
-packet_collided = 0
-sender_threads = []
-link_queue = []
+NODES_EXP_BACKOFF   = {} # key:value <=> node:{i: index, Tb : wait_time}
+sender_threads      = []
+link_queue          = []
+K_MAX               = 10
+T_P                 = 0
 
 GLOBAL_TICK = 0
 
@@ -90,9 +93,22 @@ def jammingSignal():
         global link_queue
         link_queue.pop()
 
-# TODO: Create a Binary Exponential Backoff timer.
-def BinaryBackoff():
-    return True
+def binaryBackoff(src):
+    K_MAX = 10
+    i = 0
+    t_b = 0
+    node_histoey = None
+    if src in NODES_EXP_BACKOFF:
+        node_history = NODES_EXP_BACKOFF[src]
+        i = node_history['i']
+        t_b = node_history['t_b']
+    i += 1
+    #NOTE: this is the error state, the associated packet should be dropped
+    if i > K_MAX:
+        return 0
+    T_b = random.randint(0, math.pow(2, i) -1) * T_P
+    NODES_EXP_BACKOFF[src] = {'i': i, 't_b': T_b}
+    return T_b
 
 # Returns true or false depending on if it's the right time to send.
 def is_right_time(inputThread):
@@ -151,6 +167,7 @@ def transmit_worker():
                 # Update for the next generation value for this thread.
                 global NODES_SRC_TIME_DICT
                 NODES_SRC_TIME_DICT[src_name] = nextGenTime(GLOBAL_TICK)
+
                 '''
                 if collisionDetector():
                     waitFor = random.randint(0, GLOBAL_TICK)
@@ -160,12 +177,16 @@ def transmit_worker():
                     packet_collided += 1
                     time.sleep(waitFor)
                     jammingSignal()
-                '''
+                    ticks = binaryBackoff(src)
+                    # We've re-tried enough, packet should be dropped.
+                    if ticks == 0:
+                        packet_dropped += 1
+                    time.sleep(ticks*TICK_DURATION)
         else:
             #logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
             global NODES_SRC_IDLE_DICT
             NODES_SRC_IDLE_DICT[src_name] += 1
-
+        '''
 
 # The scheduler basically calculates randomly generated
 # times at which each node in the system would act as a transmitter.
