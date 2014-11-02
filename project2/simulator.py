@@ -21,6 +21,7 @@ ARRIVAL_RATE        = 0
 LAN_SPEED           = 0
 PACKET_LEN          = 0
 TOTAL_TICKS         = 0
+TOTAL_TIME          = 0
 P_PARM              = "1"
 ETHERNET_SPEED      = 2e10
 TICK_DURATION       = 0
@@ -92,7 +93,6 @@ def collisionDetector():
 # to make the link clean.
 def jammingSignal():
     for counter in xrange(0, link_queue.qsize()):
-        global link_queue
         link_queue.get(block=False)
 
 def binaryBackoff(src):
@@ -117,7 +117,7 @@ def is_right_time(inputThread):
     logging.debug("[%s]: Thread:%s has a send time of: %s ticks" % \
             (is_right_time.__name__, inputThread, NODES_SRC_TIME_DICT[inputThread]))
     logging.debug("[%s]: Current Tick: %s" % (is_right_time.__name__, GLOBAL_TICK))
-    if GLOBAL_TICK >= NODES_SRC_TIME_DICT[inputThread]:
+    if GLOBAL_TICK > NODES_SRC_TIME_DICT[inputThread]:
         return True
     else:
         return False
@@ -125,10 +125,11 @@ def is_right_time(inputThread):
 def transmit_worker():
     BEB_ret = None
     src_name = threading.currentThread().getName()
+    send_time = NODES_SRC_TIME_DICT[src_name]
     src_idx = int(src_name[len(src_name)-1:])
     dst = NODES_SRC_DEST_DICT[src_name]
-    send_time = NODES_SRC_TIME_DICT[src_name]
-    while (GLOBAL_TICK < TICK_DURATION * TOTAL_TICKS and BEB_ret != 0 and send_time < TOTAL_TICKS * TICK_DURATION):
+    while (GLOBAL_TICK < TOTAL_TIME) and (BEB_ret != 0) and (send_time < TOTAL_TIME):
+        send_time = NODES_SRC_TIME_DICT[src_name]
         newPacket = Packet(src_name, src_idx, send_time, dst)
 
         # 1-persistance case:
@@ -158,7 +159,6 @@ def transmit_worker():
             logging.debug("[%s]: Transmitting: src:%s | dest:%s" % \
                     (src_name, newPacket.sender, newPacket.destination))
             try:
-                global link_queue
                 link_queue.put(newPacket)
             except Exception as e:
                 logging.error("[%s]: Exception was raised! msg: %s" % (src_name, e.message))
@@ -166,7 +166,6 @@ def transmit_worker():
                 global packet_transmitted
                 packet_transmitted += 1
                 # Update for the next generation value for this thread.
-                global NODES_SRC_TIME_DICT
                 NODES_SRC_TIME_DICT[src_name] = nextGenTime(GLOBAL_TICK)
 
                 if collisionDetector():
@@ -207,10 +206,10 @@ def nerdystats():
     logging.info("[%s]: packets transmitted: %s" % (nerdystats.__name__, packet_transmitted))
     logging.info("[%s]: packets collided   : %s" % (nerdystats.__name__, packet_collided))
     logging.info("[%s]: packets dropped    : %s" % (nerdystats.__name__, packet_dropped))
-    logging.info("[%s]: Each thread fully enjoyed an idle time of the following durations" % (nerdystats.__name__))
 
     for node in NODES_SRC_LIST:
-        logging.info("[%s]: Node #%s idle time: %s ticks" % (nerdystats.__name__, node, NODES_SRC_IDLE_DICT[node]))
+        logging.info("[%s]: Node #%s had idle time: %s ticks of fun time." %\
+                (nerdystats.__name__, node, NODES_SRC_IDLE_DICT[node]))
 
 def tickTock():
     for tick in xrange(0, TOTAL_TICKS):
@@ -233,7 +232,7 @@ def main(argv):
     nerdystats()
 
 def init():
-    logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
     parser = argparse.ArgumentParser(description= \
             "CSMA/CA protocols")
 
@@ -250,7 +249,7 @@ def init():
     # the tick intervals
     parser.add_argument('--tickLen', action="store", type=float, default="0.1")
     # total amount of time to run
-    parser.add_argument('-T', action="store", type=int, default="200")
+    parser.add_argument('-T', action="store", type=int, default="100")
 
     # args is a type dict.
     argsDict = vars(parser.parse_args())
@@ -271,6 +270,8 @@ def init():
     # fixed value for the program
     global TICK_DURATION
     TICK_DURATION = argsDict['tickLen']
+    global TOTAL_TIME
+    TOTAL_TIME = TICK_DURATION * TOTAL_TICKS
 
     # the total ticks it take for a full packet to be transmitted
     global D_TRANS
