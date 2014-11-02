@@ -93,7 +93,10 @@ def collisionDetector():
 # to make the link clean.
 def jammingSignal():
     for counter in xrange(0, link_queue.qsize()):
-        link_queue.get(block=False)
+        try:
+            link_queue.get(block=False)
+        except Exception as e:
+            logging.error("[%s]: Exception was raised! msg: %s" % (jammingSignal.__name__, e.message))
 
 def binaryBackoff(src):
     K_MAX = 10
@@ -237,7 +240,7 @@ def init():
             "CSMA/CA protocols")
 
     # number of computers
-    parser.add_argument('-N', action="store", type=int, default="100")
+    parser.add_argument('-N', action="store", type=int, default="1000")
     # average arrival rate packets per second
     parser.add_argument('-A', action="store", type=float, default="5")
     # speed of Lan in bits per second (default = 1Mbps)
