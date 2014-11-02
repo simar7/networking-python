@@ -6,6 +6,7 @@
              Louisa Chong (l5chong@uwaterloo.ca)
 
 '''
+import time
 import sys
 import argparse
 import random
@@ -40,6 +41,7 @@ GLOBAL_TICK = 0
 
 class Packet:
     def __init__(self, sender, sender_index, send_time, destination):
+        self.data = "fun"
         self.sender = sender
         self.sender_index = sender_index
         self.send_time = send_time
@@ -65,7 +67,7 @@ class Packet:
 
 # FIXME: @clouisa: Is this right?
 def nextGenTime(current_tick):
-    gen_number = random.randint(0, TICK_DURATION)
+    gen_tick = random.randint(0, TICK_DURATION)
     return int(gen_tick + current_tick)
 
 # TODO: Qualify as a collision if the queue was found
@@ -73,10 +75,10 @@ def nextGenTime(current_tick):
 def collisionDetector():
     # TODO: We could do this better with a lambda function.
     listOfSrcs = []
-    for packet in link_queue:
-        listOfSrc.append(packet.data)
+    for packet in list(link_queue.queue):
+        listOfSrcs.append(packet.data)
     if len(set(listOfSrcs)) != len(listOfSrcs):
-        logging.info("[%s]: Dupe found, Collision Detected!: %s" % (collisionDetector.__name__))
+        logging.info("[%s]: Dupe found, Collision Detected!" % (collisionDetector.__name__))
         return True
     else:
         return False
@@ -125,14 +127,14 @@ def transmit_worker():
 
         if (link_queue.qsize() == MAX_LINK_SIZE):
             logging.error("[%s]: Failed to transmit: src:%s | dest:%s" % \
-                    (src_name, newPacket.source, newPacket.destination))
+                    (src_name, newPacket.sender, newPacket.destination))
             global packet_dropped
             packet_dropped += 1
 
         # Is it the right time for me as a thread to transmit?
         if is_right_time(src_name):
             logging.info("[%s]: Transmitting: src:%s | dest:%s" % \
-                    (src_name, newPacket.source, newPacket.destination))
+                    (src_name, newPacket.sender, newPacket.destination))
             try:
                 global link_queue
                 link_queue.put(newPacket)
@@ -143,9 +145,9 @@ def transmit_worker():
                 packet_transmitted += 1
                 # Update for the next generation value for this thread.
                 global NODES_SRC_TIME_DICT
-                NODES_SRC_TIME_DIRCT[src_name] = nextGenTime(GLOBAL_TICK)
+                NODES_SRC_TIME_DICT[src_name] = nextGenTime(GLOBAL_TICK)
                 if collisionDetector():
-                    waitFor = randint(0, GLOBAL_TICK)
+                    waitFor = random.randint(0, GLOBAL_TICK)
                     logging.warn("[%s]: Collision Detected, waiting for: %s ticks.."%\
                             (threading.currentThread().getName(), waitFor))
                     global packet_collided
@@ -259,7 +261,6 @@ def init():
 
     # Start all the threads.
     for thread in xrange(0, SERVERS):
-        sender_threads[thread].daemon = True
         sender_threads[thread].start()
 
     # Let it rip.
