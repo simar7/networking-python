@@ -40,7 +40,7 @@ link_queue          = []
 K_MAX               = 10
 T_P                 = 0
 
-GLOBAL_TICK = 0
+GLOBAL_TICK = 0.0
 
 class Packet:
     def __init__(self, sender, sender_index, send_time, destination):
@@ -68,9 +68,11 @@ class Packet:
             return True
         return False
 
-# FIXME: @clouisa: Is this right?
+# TODO: This is Markovian, change to Poisson?
 def nextGenTime(current_tick):
-    gen_tick = random.randint(0, TICK_DURATION)
+    gen_number = random.random()
+    gen_time = (-1.0 / ARRIVAL_RATE) * math.log(1 - gen_number)
+    gen_tick = math.ceil(gen_time / TICK_DURATION)
     return int(gen_tick + current_tick)
 
 # TODO: Qualify as a collision if the queue was found
@@ -112,22 +114,21 @@ def binaryBackoff(src):
 
 # Returns true or false depending on if it's the right time to send.
 def is_right_time(inputThread):
-    '''
     logging.info("[%s]: Thread:%s has a send time of: %s ticks" % \
             (is_right_time.__name__, inputThread, NODES_SRC_TIME_DICT[inputThread]))
     logging.info("[%s]: Current Tick: %s" % (is_right_time.__name__, GLOBAL_TICK))
-    '''
     if GLOBAL_TICK >= NODES_SRC_TIME_DICT[inputThread]:
         return True
     else:
         return False
 
 def transmit_worker():
-    while GLOBAL_TICK < TOTAL_TICKS:
-        src_name = threading.currentThread().getName()
-        src_idx = int(src_name[len(src_name)-1:])
-        send_time = NODES_SRC_TIME_DICT[src_name]
-        dst = NODES_SRC_DEST_DICT[src_name]
+    BEB_ret = None
+    src_name = threading.currentThread().getName()
+    src_idx = int(src_name[len(src_name)-1:])
+    dst = NODES_SRC_DEST_DICT[src_name]
+    send_time = NODES_SRC_TIME_DICT[src_name]
+    while (GLOBAL_TICK < TICK_DURATION * TOTAL_TICKS and BEB_ret != 0 and send_time < TOTAL_TICKS * TICK_DURATION):
         newPacket = Packet(src_name, src_idx, send_time, dst)
 
         # 1-persistance case:
@@ -138,7 +139,7 @@ def transmit_worker():
         # non-persistance case:
         elif P_PRAM == 2:
             while newPacket.is_detected(src_idx, tick):
-                waitFor = randint(0, tick)
+                waitFor = nextGenTime(GLOBAL_TICK)
                 logging.info("[%s]: Channel Busy, waiting for %s (random) time.." % (src_name, waitFor))
                 time.sleep(waitFor)
 
@@ -169,20 +170,21 @@ def transmit_worker():
                 NODES_SRC_TIME_DICT[src_name] = nextGenTime(GLOBAL_TICK)
 
                 if collisionDetector():
-                    waitFor = random.randint(0, GLOBAL_TICK)
+                    waitFor = nextGenTime(GLOBAL_TICK)
                     logging.warn("[%s]: Collision Detected, waiting for: %s ticks.."%\
                             (threading.currentThread().getName(), waitFor))
                     global packet_collided
                     packet_collided += 1
-                    time.sleep(waitFor)
+                    send_time = GLOBAL_TICK + waitFor
+                    #time.sleep(waitFor)
                     jammingSignal()
-                    ticks = binaryBackoff(src_name)
+                    BEB_ret = binaryBackoff(src_name)
                     # We've re-tried enough, packet should be dropped.
-                    if ticks == 0:
+                    if BEB_ret == 0:
                         packet_dropped += 1
-                    time.sleep(ticks*TICK_DURATION)
+                    time.sleep(BEB_ret*TICK_DURATION)
         else:
-            #logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
+            logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
             global NODES_SRC_IDLE_DICT
             NODES_SRC_IDLE_DICT[src_name] += 1
 
@@ -195,7 +197,7 @@ def scheduler(sender_thread_list, current_tick):
     for node in sender_thread_list:
         global NODES_SRC_TIME_DICT
         # FIXME: Fix the random.random() to something that useful (Poisson distribution)
-        NODES_SRC_TIME_DICT[node] = current_tick + (random.random() * (TOTAL_TICKS))
+        NODES_SRC_TIME_DICT[node] = current_tick + (random.random() * (TOTAL_TICKS) * (TICK_DURATION))
         logging.info("[%s]: next gen at: %s" % (scheduler.__name__, NODES_SRC_TIME_DICT[node]))
         # randomly schedule destinations for senders.
         global NODES_SRC_DEST_DICT
@@ -210,6 +212,7 @@ def tickTock():
     for tick in xrange(0, TOTAL_TICKS):
         global GLOBAL_TICK
         GLOBAL_TICK += TICK_DURATION
+        logging.info("[%s]: current global tick at: %s" % (tickTock.__name__, GLOBAL_TICK))
 
         # Timely receive logic
         # TODO: Needs @clouisa 's logic for determining the speed of packet transmission.
@@ -221,10 +224,6 @@ def main(argv):
 
     # Start all the threads.
     [thread.start() for thread in sender_threads]
-    '''
-    for thread in xrange(0, SERVERS):
-        sender_threads[thread].start()
-    '''
     tickTock()
     [thread.join() for thread in sender_threads]
     nerdystats()
@@ -245,9 +244,9 @@ def init():
     # persistence parameter
     parser.add_argument('-P', action="store", type=str, default="1")
     # the tick intervals
-    parser.add_argument('--tickLen', action="store", type=float, default="1.0")
+    parser.add_argument('--tickLen', action="store", type=float, default="0.1")
     # total amount of time to run
-    parser.add_argument('-T', action="store", type=int, default="10")
+    parser.add_argument('-T', action="store", type=int, default="200")
 
     # args is a type dict.
     argsDict = vars(parser.parse_args())
@@ -302,9 +301,6 @@ def init():
 
     # Call the scheduler right now to determine times to send.
     scheduler(NODES_SRC_LIST, 0)
-
-    for elem in NODES_SRC_TIME_DICT:
-        print "%s : %s" % (elem, NODES_SRC_DEST_DICT[elem])
 
     # Let it rip.
     main(argsDict)
