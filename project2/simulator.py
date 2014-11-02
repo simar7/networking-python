@@ -10,6 +10,7 @@ import sys
 import argparse
 import random
 import logging
+import Queue
 import math
 import threading
 from threading import Thread, Lock
@@ -25,6 +26,7 @@ TICK_DURATION   = 0
 D_TRANS         = 0
 D_TOTAL_PROP    = 0
 MAX_LINK_SIZE   = 0
+NODES_SRC_LIST = []
 NODES_SRC_TIME_DICT = {} # key:value <=> src_node_thread:tx_time
 NODES_SRC_DEST_DICT = {} # key:value <=> src_node_thread:dst_node_thread
 NODES_SRC_IDLE_DICT = {} # key:value <=> src_node_thread:idle_time
@@ -100,19 +102,19 @@ def is_right_time(inputThread):
 def transmit_worker():
     while True:
         src_name = threading.currentThread().getName()
-        src_idx = sender_threads[threading.currentThread()].index()
+        src_idx = int(src_name[len(src_name)-1:])
         send_time = NODES_SRC_TIME_DICT[src_name]
         dst = NODES_SRC_DEST_DICT[src_name]
         newPacket = Packet(src_name, src_idx, send_time, dst)
 
         # 1-persistance case:
         if P_PRAM == 1:
-            while newPacket.is_detected(src, tick):
+            while newPacket.is_detected(src_idx, tick):
                 logging.info("[%s]: Channel Busy, gadfly waiting.." % (src_name))
 
         # non-persistance case:
         elif P_PRAM == 2:
-            while newPacket.is_detected(src, tick):
+            while newPacket.is_detected(src_idx, tick):
                 waitFor = randint(0, tick)
                 logging.info("[%s]: Channel Busy, waiting for %s (random) time.." % (src_name, waitFor))
                 time.sleep(waitFor)
@@ -134,7 +136,7 @@ def transmit_worker():
             try:
                 global link_queue
                 link_queue.put(newPacket)
-            except Exception as e
+            except Exception as e:
                 logging.error("[%s]: Exception was raised! msg: %s" % (src_name, e.message))
             finally:
                 global packet_transmitted
@@ -153,7 +155,7 @@ def transmit_worker():
         else:
             logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
             global NODES_SRC_IDLE_DICT
-            NODES_SRC_IDLE_DICT[src] += 1
+            NODES_SRC_IDLE_DICT[src_name] += 1
 
 
 # The scheduler basically calculates randomly generated
@@ -168,7 +170,7 @@ def scheduler(sender_thread_list, current_tick):
         NODES_SRC_TIME_DICT[node] = current_tick + random.random()
         # randomly schedule destinations for senders.
         global NODES_SRC_DEST_DICT
-        NODES_SRC_DEST_DICT[node] = sender_thread_list[random.randint(0, len(sender_thread_list)]
+        NODES_SRC_DEST_DICT[node] = sender_thread_list[random.randint(0, len(sender_thread_list)-1)]
 
 def tickTock():
     for tick in xrange(0, TOTAL_TICKS):
@@ -234,6 +236,7 @@ def init():
 
     global MAX_LINK_SIZE
     MAX_LINK_SIZE = LAN_SPEED * 8
+    global link_queue
     link_queue = Queue.Queue(MAX_LINK_SIZE)
 
     # Each node is a possible sender and is a thread.
@@ -241,16 +244,22 @@ def init():
         t = threading.Thread(target=transmit_worker)
         global sender_threads
         sender_threads.append(t)
+        global NODES_SRC_LIST
+        NODES_SRC_LIST.append(t.getName())
         global NODES_SRC_TIME_DICT
         NODES_SRC_TIME_DICT[t.getName()] = 0
         global NODES_SRC_IDLE_DICT
         NODES_SRC_IDLE_DICT[t.getName()] = 0
 
     # Call the scheduler right now to determine times to send.
-    scheduler(sender_threads, 0)
+    scheduler(NODES_SRC_LIST, 0)
+
+    for elem in NODES_SRC_TIME_DICT:
+        print "%s : %s" % (elem, NODES_SRC_DEST_DICT[elem])
 
     # Start all the threads.
     for thread in xrange(0, SERVERS):
+        sender_threads[thread].daemon = True
         sender_threads[thread].start()
 
     # Let it rip.
