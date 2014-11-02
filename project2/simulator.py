@@ -96,13 +96,18 @@ def BinaryBackoff():
 
 # Returns true or false depending on if it's the right time to send.
 def is_right_time(inputThread):
+    '''
+    logging.info("[%s]: Thread:%s has a send time of: %s ticks" % \
+            (is_right_time.__name__, inputThread, NODES_SRC_TIME_DICT[inputThread]))
+    logging.info("[%s]: Current Tick: %s" % (is_right_time.__name__, GLOBAL_TICK))
+    '''
     if GLOBAL_TICK >= NODES_SRC_TIME_DICT[inputThread]:
         return True
     else:
         return False
 
 def transmit_worker():
-    while True:
+    while GLOBAL_TICK < TOTAL_TICKS:
         src_name = threading.currentThread().getName()
         src_idx = int(src_name[len(src_name)-1:])
         send_time = NODES_SRC_TIME_DICT[src_name]
@@ -146,6 +151,7 @@ def transmit_worker():
                 # Update for the next generation value for this thread.
                 global NODES_SRC_TIME_DICT
                 NODES_SRC_TIME_DICT[src_name] = nextGenTime(GLOBAL_TICK)
+                '''
                 if collisionDetector():
                     waitFor = random.randint(0, GLOBAL_TICK)
                     logging.warn("[%s]: Collision Detected, waiting for: %s ticks.."%\
@@ -154,8 +160,9 @@ def transmit_worker():
                     packet_collided += 1
                     time.sleep(waitFor)
                     jammingSignal()
+                '''
         else:
-            logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
+            #logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
             global NODES_SRC_IDLE_DICT
             NODES_SRC_IDLE_DICT[src_name] += 1
 
@@ -169,10 +176,16 @@ def scheduler(sender_thread_list, current_tick):
     for node in sender_thread_list:
         global NODES_SRC_TIME_DICT
         # FIXME: Fix the random.random() to something that useful (Poisson distribution)
-        NODES_SRC_TIME_DICT[node] = current_tick + random.random()
+        NODES_SRC_TIME_DICT[node] = current_tick + (random.random() * (TOTAL_TICKS))
+        logging.info("[%s]: next gen at: %s" % (scheduler.__name__, NODES_SRC_TIME_DICT[node]))
         # randomly schedule destinations for senders.
         global NODES_SRC_DEST_DICT
         NODES_SRC_DEST_DICT[node] = sender_thread_list[random.randint(0, len(sender_thread_list)-1)]
+
+def nerdystats():
+    logging.info("[%s]: packets transmitted: %s" % (nerdystats.__name__, packet_transmitted))
+    logging.info("[%s]: packets collided   : %s" % (nerdystats.__name__, packet_collided))
+    logging.info("[%s]: packets dropped    : %s" % (nerdystats.__name__, packet_dropped))
 
 def tickTock():
     for tick in xrange(0, TOTAL_TICKS):
@@ -186,10 +199,19 @@ def tickTock():
 
 def main(argv):
     print "Program is starting..."
+
+    # Start all the threads.
+    [thread.start() for thread in sender_threads]
+    '''
+    for thread in xrange(0, SERVERS):
+        sender_threads[thread].start()
+    '''
     tickTock()
+    [thread.join() for thread in sender_threads]
+    nerdystats()
 
 def init():
-    logging.basicConfig(stream=sys.stderr, level=logging.WARNING)
+    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
     parser = argparse.ArgumentParser(description= \
             "CSMA/CA protocols")
 
@@ -206,7 +228,7 @@ def init():
     # the tick intervals
     parser.add_argument('--tickLen', action="store", type=float, default="1.0")
     # total amount of time to run
-    parser.add_argument('-T', action="store", type=int, default="10000")
+    parser.add_argument('-T', action="store", type=int, default="10")
 
     # args is a type dict.
     argsDict = vars(parser.parse_args())
@@ -244,6 +266,7 @@ def init():
     # Each node is a possible sender and is a thread.
     for thread in xrange(0, SERVERS):
         t = threading.Thread(target=transmit_worker)
+        t.setDaemon(True)
         global sender_threads
         sender_threads.append(t)
         global NODES_SRC_LIST
@@ -258,10 +281,6 @@ def init():
 
     for elem in NODES_SRC_TIME_DICT:
         print "%s : %s" % (elem, NODES_SRC_DEST_DICT[elem])
-
-    # Start all the threads.
-    for thread in xrange(0, SERVERS):
-        sender_threads[thread].start()
 
     # Let it rip.
     main(argsDict)
