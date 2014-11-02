@@ -208,7 +208,7 @@ def nerdystats():
     logging.info("[%s]: packets dropped    : %s" % (nerdystats.__name__, packet_dropped))
 
     for node in NODES_SRC_LIST:
-        logging.info("[%s]: Node #%s had idle time: %s ticks of fun time." %\
+        logging.debug("[%s]: Node #%s had idle time: %s ticks of fun time." %\
                 (nerdystats.__name__, node, NODES_SRC_IDLE_DICT[node]))
 
 def tickTock():
@@ -232,24 +232,24 @@ def main(argv):
     nerdystats()
 
 def init():
-    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+    logging.basicConfig(stream=sys.stderr, level=logging.INFO)
     parser = argparse.ArgumentParser(description= \
             "CSMA/CA protocols")
 
     # number of computers
-    parser.add_argument('-N', action="store", type=int, default="5")
+    parser.add_argument('-N', action="store", type=int, default="100")
     # average arrival rate packets per second
-    parser.add_argument('-A', action="store", type=float, default="100")
+    parser.add_argument('-A', action="store", type=float, default="5")
     # speed of Lan in bits per second (default = 1Mbps)
     parser.add_argument('-W', action="store", type=int, default="1000000")
     # packet length in bits (default = 1500bytes)
-    parser.add_argument('-L', action="store", type=int, default="6000")
+    parser.add_argument('-L', action="store", type=int, default="1500")
     # persistence parameter
     parser.add_argument('-P', action="store", type=str, default="1")
     # the tick intervals
     parser.add_argument('--tickLen', action="store", type=float, default="0.1")
     # total amount of time to run
-    parser.add_argument('-T', action="store", type=int, default="100")
+    parser.add_argument('-T', action="store", type=int, default="1000")
 
     # args is a type dict.
     argsDict = vars(parser.parse_args())
