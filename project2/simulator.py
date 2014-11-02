@@ -273,11 +273,16 @@ def init():
 
     # the total ticks it take for a full packet to be transmitted
     global D_TRANS
-    D_TRANS = math.ceil(PACKET_LEN*ARRIVAL_RATE / TICK_DURATION)
+    D_TRANS           = math.ceil(PACKET_LEN*ARRIVAL_RATE / TICK_DURATION)
+
     # the total ticks it take for a packet to be propagated
     # from the first node to the last node
     global D_TOTAL_PROP
-    D_TOTAL_PROP = math.ceil((10*(SERVERS-1)) / (ETHERNET_SPEED*TICK_DURATION))
+    D_TOTAL_PROP      = math.ceil((10*(SERVERS-1)) / (ETHERNET_SPEED*TICK_DURATION))
+
+    # 512 bit time in ticks
+    global T_P
+    T_P               = math.ceil(512/(ETHERNET_SPEED*TICK_DURATION))
 
     global MAX_LINK_SIZE
     MAX_LINK_SIZE = LAN_SPEED * 8
