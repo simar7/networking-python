@@ -80,11 +80,11 @@ def nextGenTime(current_tick):
 # to have packets from two diff sources
 def collisionDetector():
     # TODO: We could do this better with a lambda function.
-    listOfSrcs = []
-    for packet in list(link_queue.queue):
-        listOfSrcs.append(packet.data)
+    listOfSrcs = list(link_queue.queue)
     if len(set(listOfSrcs)) != len(listOfSrcs):
-        logging.debug("[%s]: Dupe found, Collision Detected!" % (collisionDetector.__name__))
+        logging.info("[%s]: Dupe found, Collision Detected!" % (collisionDetector.__name__))
+        global packet_collided
+        packet_collided += 1
         return True
     else:
         return False
@@ -131,7 +131,7 @@ def transmit_worker():
     send_time = NODES_SRC_TIME_DICT[src_name]
     src_idx = int(src_name[len(src_name)-1:])
     dst = NODES_SRC_DEST_DICT[src_name]
-    while (GLOBAL_TICK < TOTAL_TIME) and (BEB_ret != 0) and (send_time < TOTAL_TIME):
+    while (GLOBAL_TICK < TOTAL_TIME) and (send_time < TOTAL_TIME):
         send_time = NODES_SRC_TIME_DICT[src_name]
         newPacket = Packet(src_name, src_idx, send_time, dst)
 
@@ -175,8 +175,6 @@ def transmit_worker():
                     waitFor = nextGenTime(GLOBAL_TICK)
                     logging.debug("[%s]: Collision Detected, waiting for: %s ticks.."%\
                             (threading.currentThread().getName(), waitFor))
-                    global packet_collided
-                    packet_collided += 1
                     send_time = GLOBAL_TICK + waitFor
                     #time.sleep(waitFor)
                     jammingSignal()
@@ -235,12 +233,12 @@ def main(argv):
     nerdystats()
 
 def init():
-    logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
     parser = argparse.ArgumentParser(description= \
             "CSMA/CA protocols")
 
     # number of computers
-    parser.add_argument('-N', action="store", type=int, default="1000")
+    parser.add_argument('-N', action="store", type=int, default="10")
     # average arrival rate packets per second
     parser.add_argument('-A', action="store", type=float, default="5")
     # speed of Lan in bits per second (default = 1Mbps)
@@ -250,9 +248,9 @@ def init():
     # persistence parameter
     parser.add_argument('-P', action="store", type=str, default="1")
     # the tick intervals
-    parser.add_argument('--tickLen', action="store", type=float, default="0.1")
+    parser.add_argument('--tickLen', action="store", type=float, default="0.0001")
     # total amount of time to run
-    parser.add_argument('-T', action="store", type=int, default="1000")
+    parser.add_argument('-T', action="store", type=int, default="10000")
 
     # args is a type dict.
     argsDict = vars(parser.parse_args())
