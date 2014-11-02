@@ -13,27 +13,63 @@ import logging
 import threading
 from threading import Thread, Lock
 
-SERVERS = 0
-ARRIVAL_RATE = 0
-LAN_SPEED = 0
-PACKET_LEN = 0
-PERSISTANCE = 0
-TOTAL_TICKS = 0
-MAX_LINK_SIZE = 0
-NODE_LOCATION_ARR = []
-NODE_TIMINGS_ARR = []
+SERVERS         = 0
+ARRIVAL_RATE    = 0
+LAN_SPEED       = 0
+PACKET_LEN      = 0
+TOTAL_TICKS     = 0
+P_PARM          = "1"
+ETHERNET_SPEED  = 2e10
+TICK_DURATION   = 0
+D_TRANS         = 0
+D_TOTAL_PROP    = 0
+MAX_LINK_SIZE   = 0
+'''
+binary exponential backoff
+'''
+K_MAX = 10
+T_P = 0
+'''
+transmittion
+'''
+NODE_LOCATION_ARR   = []
+NODE_TIMINGS_ARR    = []
 NODES_KEY_TIME_DICT = {} # key:value <=> node#:tx_time
-mutex = Lock()
+NODES_EXP_BACKOFF   = {} # key:valie <=> node:{i: index, Tb : wait_time}
+mutex               = Lock()
+'''
+data collection
+'''
+packet_dropped      = 0
+packet_transmitted  = 0
+packet_collided     = 0
 
-packet_dropped = 0
-packet_transmitted = 0
-packet_collided = 0
+class Packet:
+    sender = None
+    sender_index = -1
+    send_time = -2
+    def __init__(self, sender, sender_index, send_time):
+        self.sender = sender
+        self.sender_index = sender_index
+        self.send_time = send_time
 
-class Packet():
-    def __init__(self, src, dst):
-        self.data = "cool-stuff"
-        self.source = src
-        self.destination = dst
+    def is_detected(self, from_index, current_tick):
+        ''' Check if the the packet can be sensed from the given index
+        Keyword arguments:
+        @from_index: index where the are sending from
+        @current_tick: current time of the simulation (in ticks)
+        '''
+        # how much time have passed
+        time_passed = current_tick - self.send_time
+        # how far did the signal propagate to on the smaller index side
+        min_index = self.sender_index - time_passed
+        # how far did the signal propagate to on the larger index side
+        max_index = self.sender_index + time_passed
+        # determin if the packet is detected
+        if (((max_index >= from_index) and (from_index > self.sender_index))
+         or ((min_index <= from_index) and (from_index <= self.sender_index))):
+            return True
+        return False
 
 '''
 We may not need this..
@@ -69,9 +105,22 @@ def jammingSignal(link_queue):
     for counter in xrange(0, len(link_queue)):
         link_queue.pop()
 
-# TODO: Create a Binary Exponential Backoff timer.
-def BinaryBackoff():
-    return True
+def binaryBackoff(src):
+    K_MAX = 10
+    i = 0
+    t_b = 0
+    node_histoey = None
+    if src in NODES_EXP_BACKOFF:
+        node_history = NODES_EXP_BACKOFF[src]
+        i = node_history['i']
+        t_b = node_history['t_b']
+    i += 1
+    if i > K_MAX:
+        #NOTE: this is the error state, the associated packet should be dropped
+        return 0
+    T_b = random.randint(0, math.pow(2, i) -1) * T_P
+    NODES_EXP_BACKOFF[src] = {'i': i, 't_b': T_b}
+    return T_b
 
 def transmit_worker(tick, src, dst, link_queue):
     while True:
@@ -114,6 +163,9 @@ def transmit_worker(tick, src, dst, link_queue):
                     (transmit_worker.__name__, waitFor))
             global packet_collided
             packet_collided += 1
+            logging.warn("[%s]: Retried too many times, dropping packet.." %\
+                    (transmit_worker.__name__))
+            # TODO: change the logic to be implemented based on ticks
             time.sleep(waitFor)
 
 # The scheduler basically calculates randomly generated
@@ -130,6 +182,7 @@ def scheduler(node_array, current_tick):
     # Now re-create a list of nodes that will be in order of execution.
     node_tx_list = sorted(NODES_KEY_TIME_DICT, key=NODES_KEY_TIME_DICT.get)
     return node_tx_list
+
 
 def tickTock():
     global MAX_LINK_SIZE
@@ -149,10 +202,6 @@ def tickTock():
             if not tx_ret:
                 global packet_dropped
                 packet_dropped += 1
-            global NODES_KEY_TIME_DICT
-            # Update the current node's value for next generation.
-            # and increment the current_node counter to point to the next node.
-            NODES_KEY_TIME_DICT[current_node] = nextGenTime(tick)
             current_node += 1
 
             # If we have transmitted atleast once from each node
@@ -165,6 +214,12 @@ def tickTock():
                 global packet_collided
                 packet_collided += 1
                 jammingSignal(link_queue)
+                ticks = binaryBackoff(src)
+                if ticks == 0:
+                  # retry too many times.. packet should be dropped
+                  packet_dropped += 1
+                time.sleep(ticks*TICK_DURATION)
+
 
         # Timely receive logic
         # TODO: Needs @clouisa 's logic for determining the speed of packet transmission.
@@ -197,17 +252,38 @@ def init():
     argsDict = vars(parser.parse_args())
 
     global SERVERS
-    SERVERS = argsDict['N']
+    SERVERS       = argsDict['N']
     global ARRIVAL_RATE
-    ARRIVAL_RATE = argsDict['A']
+    ARRIVAL_RATE  = argsDict['A']
     global LAN_SPEED
-    LAN_SPEED    = argsDict['W']
+    LAN_SPEED     = argsDict['W']
     global PACKET_LEN
-    PACKET_LEN   = argsDict['L']
-    global PERSISTANCE
-    PERSISTANCE  = argsDict['P']
+    PACKET_LEN    = argsDict['L']
+    global P_PRAM
+    P_PRAM        = argsDict['P']
     global TOTAL_TICKS
-    TOTAL_TICKS = argsDict['T']
+    TOTAL_TICKS   = argsDict['T']
+    # fixed value for the program
+    global TICK_DURATION
+    TICK_DURATION = argsDict['tickLen']
+
+    '''
+    one time calcualted values
+    '''
+    # the total ticks it take for a full packet to be transmitted
+    global D_TRANS
+    D_TRANS           = math.ceil(PACKET_LEN*ARRIVAL_RATE / TICK_DURATION)
+    # the total ticks it take for a packet to be propagated
+    # from the first node to the last node
+    global D_TOTAL_PROP
+    D_TOTAL_PROP      = math.ceil((10*(SERVERS-1)) / (ETHERNET_SPEED*TICK_DURATION))
+    # 512 bit time in ticks
+    global T_P
+    T_P               = math.ceil(512/(ETHERNET_SPEED*TICK_DURATION))
+
+    '''
+    initiate date for the nodes
+    '''
     global NODE_LOCATION_ARR
     NODE_LOCATION_ARR = NODE_LOCATION_ARR.extend(xrange(SERVERS))
     global NODE_TIMINGS_ARR
