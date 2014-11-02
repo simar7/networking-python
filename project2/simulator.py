@@ -89,15 +89,15 @@ def collisionDetector():
 # TODO: We probably need more logic than just popping elements
 # to make the link clean.
 def jammingSignal():
-    for counter in xrange(0, len(link_queue)):
+    for counter in xrange(0, link_queue.qsize()):
         global link_queue
-        link_queue.pop()
+        link_queue.get(block=False)
 
 def binaryBackoff(src):
     K_MAX = 10
     i = 0
     t_b = 0
-    node_histoey = None
+    node_history = None
     if src in NODES_EXP_BACKOFF:
         node_history = NODES_EXP_BACKOFF[src]
         i = node_history['i']
@@ -168,7 +168,6 @@ def transmit_worker():
                 global NODES_SRC_TIME_DICT
                 NODES_SRC_TIME_DICT[src_name] = nextGenTime(GLOBAL_TICK)
 
-                '''
                 if collisionDetector():
                     waitFor = random.randint(0, GLOBAL_TICK)
                     logging.warn("[%s]: Collision Detected, waiting for: %s ticks.."%\
@@ -177,7 +176,7 @@ def transmit_worker():
                     packet_collided += 1
                     time.sleep(waitFor)
                     jammingSignal()
-                    ticks = binaryBackoff(src)
+                    ticks = binaryBackoff(src_name)
                     # We've re-tried enough, packet should be dropped.
                     if ticks == 0:
                         packet_dropped += 1
@@ -186,7 +185,6 @@ def transmit_worker():
             #logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
             global NODES_SRC_IDLE_DICT
             NODES_SRC_IDLE_DICT[src_name] += 1
-        '''
 
 # The scheduler basically calculates randomly generated
 # times at which each node in the system would act as a transmitter.
