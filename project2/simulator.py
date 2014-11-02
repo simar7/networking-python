@@ -83,7 +83,7 @@ def collisionDetector():
     for packet in list(link_queue.queue):
         listOfSrcs.append(packet.data)
     if len(set(listOfSrcs)) != len(listOfSrcs):
-        logging.info("[%s]: Dupe found, Collision Detected!" % (collisionDetector.__name__))
+        logging.debug("[%s]: Dupe found, Collision Detected!" % (collisionDetector.__name__))
         return True
     else:
         return False
@@ -114,9 +114,9 @@ def binaryBackoff(src):
 
 # Returns true or false depending on if it's the right time to send.
 def is_right_time(inputThread):
-    logging.info("[%s]: Thread:%s has a send time of: %s ticks" % \
+    logging.debug("[%s]: Thread:%s has a send time of: %s ticks" % \
             (is_right_time.__name__, inputThread, NODES_SRC_TIME_DICT[inputThread]))
-    logging.info("[%s]: Current Tick: %s" % (is_right_time.__name__, GLOBAL_TICK))
+    logging.debug("[%s]: Current Tick: %s" % (is_right_time.__name__, GLOBAL_TICK))
     if GLOBAL_TICK >= NODES_SRC_TIME_DICT[inputThread]:
         return True
     else:
@@ -155,7 +155,7 @@ def transmit_worker():
 
         # Is it the right time for me as a thread to transmit?
         if is_right_time(src_name):
-            logging.info("[%s]: Transmitting: src:%s | dest:%s" % \
+            logging.debug("[%s]: Transmitting: src:%s | dest:%s" % \
                     (src_name, newPacket.sender, newPacket.destination))
             try:
                 global link_queue
@@ -171,7 +171,7 @@ def transmit_worker():
 
                 if collisionDetector():
                     waitFor = nextGenTime(GLOBAL_TICK)
-                    logging.warn("[%s]: Collision Detected, waiting for: %s ticks.."%\
+                    logging.debug("[%s]: Collision Detected, waiting for: %s ticks.."%\
                             (threading.currentThread().getName(), waitFor))
                     global packet_collided
                     packet_collided += 1
@@ -198,7 +198,7 @@ def scheduler(sender_thread_list, current_tick):
         global NODES_SRC_TIME_DICT
         # FIXME: Fix the random.random() to something that useful (Poisson distribution)
         NODES_SRC_TIME_DICT[node] = current_tick + (random.random() * (TOTAL_TICKS) * (TICK_DURATION))
-        logging.info("[%s]: next gen at: %s" % (scheduler.__name__, NODES_SRC_TIME_DICT[node]))
+        logging.debug("[%s]: next gen at: %s" % (scheduler.__name__, NODES_SRC_TIME_DICT[node]))
         # randomly schedule destinations for senders.
         global NODES_SRC_DEST_DICT
         NODES_SRC_DEST_DICT[node] = sender_thread_list[random.randint(0, len(sender_thread_list)-1)]
@@ -207,12 +207,16 @@ def nerdystats():
     logging.info("[%s]: packets transmitted: %s" % (nerdystats.__name__, packet_transmitted))
     logging.info("[%s]: packets collided   : %s" % (nerdystats.__name__, packet_collided))
     logging.info("[%s]: packets dropped    : %s" % (nerdystats.__name__, packet_dropped))
+    logging.info("[%s]: Each thread fully enjoyed an idle time of the following durations" % (nerdystats.__name__))
+
+    for node in NODES_SRC_LIST:
+        logging.info("[%s]: Node #%s idle time: %s ticks" % (nerdystats.__name__, node, NODES_SRC_IDLE_DICT[node]))
 
 def tickTock():
     for tick in xrange(0, TOTAL_TICKS):
         global GLOBAL_TICK
         GLOBAL_TICK += TICK_DURATION
-        logging.info("[%s]: current global tick at: %s" % (tickTock.__name__, GLOBAL_TICK))
+        logging.debug("[%s]: current global tick at: %s" % (tickTock.__name__, GLOBAL_TICK))
 
         # Timely receive logic
         # TODO: Needs @clouisa 's logic for determining the speed of packet transmission.
@@ -229,7 +233,7 @@ def main(argv):
     nerdystats()
 
 def init():
-    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+    logging.basicConfig(stream=sys.stderr, level=logging.INFO)
     parser = argparse.ArgumentParser(description= \
             "CSMA/CA protocols")
 
