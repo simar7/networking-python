@@ -41,6 +41,7 @@ link_queue          = []
 K_MAX               = 10
 T_P                 = 0
 
+mutex = Lock()
 GLOBAL_TICK = 0.0
 
 class Packet:
@@ -76,6 +77,7 @@ def nextGenTime(current_tick):
     gen_tick = math.ceil(gen_time / TICK_DURATION)
     return int(gen_tick + current_tick)
 
+'''
 # TODO: Qualify as a collision if the queue was found
 # to have packets from two diff sources
 def collisionDetector():
@@ -88,6 +90,7 @@ def collisionDetector():
         return True
     else:
         return False
+'''
 
 # TODO: We probably need more logic than just popping elements
 # to make the link clean.
@@ -162,15 +165,34 @@ def transmit_worker():
             logging.debug("[%s]: Transmitting: src:%s | dest:%s" % \
                     (src_name, newPacket.sender, newPacket.destination))
             try:
-                link_queue.put(newPacket)
+                if not mutex.locked():
+                    mutex.acquire()
+                    link_queue.put(newPacket)
+                    mutex.release()
+                else:
+                    global packet_collided
+                    packet_collided += 1
+                    waitFor = nextGenTime(GLOBAL_TICK)
+                    logging.info("[%s]: Collision Detected, waiting for: %s ticks.."%\
+                            (threading.currentThread().getName(), waitFor))
+                    send_time = GLOBAL_TICK + waitFor
+                    time.sleep(waitFor)
+                    jammingSignal()
+                    BEB_ret = binaryBackoff(src_name)
+                    # We've re-tried enough, packet should be dropped.
+                    if BEB_ret == 0:
+                        packet_dropped += 1
+                    time.sleep(BEB_ret*TICK_DURATION)
+
             except Exception as e:
                 logging.error("[%s]: Exception was raised! msg: %s" % (src_name, e.message))
+
             finally:
                 global packet_transmitted
                 packet_transmitted += 1
                 # Update for the next generation value for this thread.
                 NODES_SRC_TIME_DICT[src_name] = nextGenTime(GLOBAL_TICK)
-
+            '''
                 if collisionDetector():
                     waitFor = nextGenTime(GLOBAL_TICK)
                     logging.debug("[%s]: Collision Detected, waiting for: %s ticks.."%\
@@ -183,6 +205,7 @@ def transmit_worker():
                     if BEB_ret == 0:
                         packet_dropped += 1
                     time.sleep(BEB_ret*TICK_DURATION)
+            '''
         else:
             logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
             global NODES_SRC_IDLE_DICT
@@ -233,12 +256,12 @@ def main(argv):
     nerdystats()
 
 def init():
-    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+    logging.basicConfig(stream=sys.stderr, level=logging.INFO)
     parser = argparse.ArgumentParser(description= \
             "CSMA/CA protocols")
 
     # number of computers
-    parser.add_argument('-N', action="store", type=int, default="10")
+    parser.add_argument('-N', action="store", type=int, default="100")
     # average arrival rate packets per second
     parser.add_argument('-A', action="store", type=float, default="5")
     # speed of Lan in bits per second (default = 1Mbps)
@@ -248,9 +271,9 @@ def init():
     # persistence parameter
     parser.add_argument('-P', action="store", type=str, default="1")
     # the tick intervals
-    parser.add_argument('--tickLen', action="store", type=float, default="0.0001")
+    parser.add_argument('--tickLen', action="store", type=float, default="0.01")
     # total amount of time to run
-    parser.add_argument('-T', action="store", type=int, default="10000")
+    parser.add_argument('-T', action="store", type=int, default="100")
 
     # args is a type dict.
     argsDict = vars(parser.parse_args())
