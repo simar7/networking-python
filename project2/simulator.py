@@ -183,7 +183,7 @@ def transmit_worker():
                     packet_dropped += 1
                 '''
 
-                logging.debug("[%s]: Transmitting packet " % (src_name))
+                logging.info("[%s]: Transmitting packet " % (src_name))
                 try:
                     link_queue.put(newPacket)
                 except Exception as e:
@@ -255,9 +255,6 @@ def scheduler(sender_thread_list, current_tick):
         global NODES_SRC_TIME_DICT
         NODES_SRC_TIME_DICT[node] = next_gen_time(current_tick)
         logging.debug("[%s]: next gen at: %s" % (scheduler.__name__, NODES_SRC_TIME_DICT[node]))
-        # randomly schedule destinations for senders.
-        # global NODES_SRC_DEST_DICT
-        # NODES_SRC_DEST_DICT[node] = sender_thread_list[random.randint(0, len(sender_thread_list)-1)]
 
 def nerdystats():
     logging.info("[%s]: packets transmitted: %s" % (nerdystats.__name__, packet_transmitted))
@@ -279,12 +276,14 @@ def tickTock():
                 all_updated = False
         if all_updated:
             GLOBAL_TICK += 1
-            logging.info("[%s]: current global tick at: %s" % (tickTock.__name__, GLOBAL_TICK))
-
-        # Timely receive logic
-        # TODO: Needs @clouisa 's logic for determining the speed of packet transmission.
-        # TODO: Also need logic for dequeueing from the link IF AND ONLY IF all nodes have
-        # had the chance of listening to the message once.
+            if GLOBAL_TICK % 100 == 0:
+                logging.info("[%s]: current global tick at: %s" % (tickTock.__name__, GLOBAL_TICK))
+        # dequeue the packets
+        for packet in list(link_queue.queue):
+            # packet has fulling transmitted to the beginning and end of the medium
+            if (packet.is_detected(D_TRANS*-1) and packet.is_detected(D_TOTAL_PROP + D_TRANS)):
+                link_queue.remove(packet)
+                logging.info("[dequeueing packet] current time: %s, sender: %s, send_time: %s" % (GLOBAL_TICK, packet.sender, packet.sender_time))
 
 def main(argv):
     print "Program is starting..."
@@ -311,9 +310,9 @@ def init():
     # persistence parameter
     parser.add_argument('-P', action="store", type=str, default="1")
     # the tick intervals (seconds)
-    parser.add_argument('--tickLen', action="store", type=float, default="1e-8")
+    parser.add_argument('--tickLen', action="store", type=float, default="1e-6")
     # total amount of time to run
-    parser.add_argument('-T', action="store", type=int, default="10000")
+    parser.add_argument('-T', action="store", type=int, default="100000")
 
     # args is a type dict.
     argsDict = vars(parser.parse_args())
@@ -341,7 +340,7 @@ def init():
     TOTAL_TIME        = TICK_DURATION * TOTAL_TICKS
     # the total ticks it take for a full packet to be transmitted
     global D_TRANS
-    D_TRANS           = math.ceil(PACKET_LEN*ARRIVAL_RATE / TICK_DURATION)
+    D_TRANS           = math.ceil((PACKET_LEN*LAN_SPEED)/ (ETHERNET_SPEED*TICK_DURATION))
     # the total ticks it take for a packet to be propagated
     # from the first node to the last node
     global D_TOTAL_PROP
