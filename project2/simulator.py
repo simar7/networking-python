@@ -38,7 +38,7 @@ T_P = 0
 transmittion
 '''
 NODES_SRC_LIST      = []
-NODES_SRC_CLK_DICT  = {} # key:valie <=> node:current_tick
+NODES_SRC_CLK_DICT  = {} # key:value <=> node:current_tick
 NODES_SRC_TIME_DICT = {} # key:value <=> src_node_thread:tx_time
 NODES_SRC_DEST_DICT = {} # key:value <=> src_node_thread:dst_node_thread
 NODES_SRC_IDLE_DICT = {} # key:value <=> src_node_thread:idle_time
@@ -58,7 +58,7 @@ packet_collided     = 0
 class Packet:
     def __init__(self, sender, sender_index, send_time, jamming = False):
         self.data = "fun"
-        self.jamming = False
+        self.jamming = jamming
         self.sender = sender
         self.sender_index = sender_index
         self.send_time = send_time
@@ -157,9 +157,9 @@ def transmit_worker():
                             NODES_SRC_CLK_DICT[src_name] += 1
                             if is_medium_busy(src_idx):
                                 sense_time = 0
+                                logging.info("[%s]: Channel Busy, Restarting carrier sensing.." % (src_name))
                             else:
                                 sense_time += 1
-                            logging.info("[%s]: Channel Busy, gadfly waiting.." % (src_name))
 
                 # TODO: update logic to make sure medium sensing takes 96 bit time
                 # non-persistance case:
@@ -233,7 +233,7 @@ def transmit_worker():
                                         global NODES_SRC_IDLE_DICT
                                         NODES_SRC_IDLE_DICT[src_name] = NODES_SRC_IDLE_DICT[src_name] + BEB_ret
                                 else:
-                                    logging.debug("[%s] packet tramition for %s ticks" % (src_name, transmit_time))
+                                    logging.debug("[%s] packet transmition for %s ticks" % (src_name, transmit_time))
                                     transmit_time += 1
 
                     if (transmit_time >= D_TRANS):
@@ -255,7 +255,6 @@ def scheduler(sender_thread_list, current_tick):
         global NODES_SRC_TIME_DICT
         NODES_SRC_TIME_DICT[node] = next_gen_time(current_tick)
         logging.debug("[%s]: next gen at: %s" % (scheduler.__name__, NODES_SRC_TIME_DICT[node]))
-        # NOTE: we dont need a destinations
         # randomly schedule destinations for senders.
         # global NODES_SRC_DEST_DICT
         # NODES_SRC_DEST_DICT[node] = sender_thread_list[random.randint(0, len(sender_thread_list)-1)]
@@ -368,7 +367,7 @@ def init():
     for thread in xrange(0, SERVERS):
         t = threading.Thread(target=transmit_worker)
         t.setDaemon(True)
-        global sender_thre1ads
+        global sender_threads
         sender_threads.append(t)
         global NODES_SRC_CLK_DICT
         NODES_SRC_CLK_DICT[t.getName()] = 0
