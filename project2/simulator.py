@@ -207,6 +207,8 @@ def transmit_worker():
                                     is_jammed = True
                                     link_queue.remove(newPacket)
                                     BEB_ret = 0
+                                    logging.info("[%s]: signal jammed" % (src_name))
+                                    logging.info("[%s]: next_gen at: %s" % (src_name, NODES_SRC_TIME_DICT[src_name]))
                                     NODES_SRC_TIME_DICT[src_name] = next_gen_time(current_tick)
                             if not is_jammed:
                                 # collision detected
@@ -241,6 +243,8 @@ def transmit_worker():
                         BEB_ret = 0
                         packet_transmitted += 1
                         NODES_SRC_TIME_DICT[src_name] = next_gen_time(current_tick)
+                        logging.info("[%s]: next_gen at: %s" % (src_name, NODES_SRC_TIME_DICT[src_name]))
+
             else:
                 logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
                 NODES_SRC_IDLE_DICT[src_name] += 1
@@ -254,7 +258,7 @@ def scheduler(sender_thread_list, current_tick):
     for node in sender_thread_list:
         global NODES_SRC_TIME_DICT
         NODES_SRC_TIME_DICT[node] = next_gen_time(current_tick)
-        logging.debug("[%s]: next gen at: %s" % (scheduler.__name__, NODES_SRC_TIME_DICT[node]))
+        logging.info("[%s]: next gen at: %s" % (node, NODES_SRC_TIME_DICT[node]))
 
 def nerdystats():
     logging.info("[%s]: packets transmitted: %s" % (nerdystats.__name__, packet_transmitted))
@@ -281,7 +285,7 @@ def tickTock():
         # dequeue the packets
         for packet in list(link_queue.queue):
             # packet has fulling transmitted to the beginning and end of the medium
-            if (packet.is_detected(D_TRANS*-1) and packet.is_detected(D_TOTAL_PROP + D_TRANS)):
+            if (packet.is_detected(D_TRANS*-1, GLOBAL_TICK) and packet.is_detected(D_TOTAL_PROP + D_TRANS, GLOBAL_TICK)):
                 link_queue.remove(packet)
                 logging.info("[dequeueing packet] current time: %s, sender: %s, send_time: %s" % (GLOBAL_TICK, packet.sender, packet.sender_time))
 
@@ -310,7 +314,7 @@ def init():
     # persistence parameter
     parser.add_argument('-P', action="store", type=str, default="1")
     # the tick intervals (seconds)
-    parser.add_argument('--tickLen', action="store", type=float, default="1e-6")
+    parser.add_argument('--tickLen', action="store", type=float, default="1e-5")
     # total amount of time to run
     parser.add_argument('-T', action="store", type=int, default="100000")
 
