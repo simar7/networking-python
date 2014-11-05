@@ -64,7 +64,7 @@ def main(args):
             global testlist
             testList.append('./simulator.py -N %s -A %s -W %s -L %s -P %s --tickLen %s -T %s --calc %s' %\
                     (numberOfNodesList[0], packetPerSecList[0], lan_speed, \
-                    pkt_len_in_bits, p_pram[0], ticklen, totalticks, whatWeNeed))
+                    pkt_len_in_bits, p_pram[2], ticklen, totalticks, whatWeNeed))
 
         elif args[1] == 'q1':
             for nodeCount in xrange(20, 120, 20):
