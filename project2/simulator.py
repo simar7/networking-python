@@ -29,14 +29,11 @@ D_TOTAL_PROP      = 0
 MAX_LINK_SIZE     = 0
 SENSE_MEDIUM_TIME = 0
 JAMMING_TIME      = 0
-'''
-binary exponential backoff
-'''
+
+# BEB Params
 K_MAX = 10
 T_P = 0
-'''
-transmittion
-'''
+
 NODES_SRC_LIST      = []
 NODES_SRC_CLK_DICT  = {} # key:value <=> node:current_tick
 NODES_SRC_TIME_DICT = {} # key:value <=> src_node_thread:tx_time
@@ -47,12 +44,14 @@ mutex               = Lock()
 sender_threads      = []
 link_queue          = []
 GLOBAL_TICK         = 0
-'''
-data collection
-'''
+
+# Data Collection
 packet_dropped      = 0
 packet_transmitted  = 0
 packet_collided     = 0
+CALC = None
+throughput = 0
+avgDelay = 0
 
 class Packet:
     def __init__(self, sender, sender_index, send_time, jamming = False):
@@ -260,6 +259,15 @@ def nerdystats():
         logging.debug("[%s]: Node #%s had idle time: %s ticks of fun time." %\
                 (nerdystats.__name__, node, NODES_SRC_IDLE_DICT[node]))
 
+    if CALC == 'throughput':
+        logging.info("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
+        logging.debug("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
+    if CALC == 'avgDelay':
+        logging.info("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
+        logging.debug("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
+    else:
+        logging.error("[%s]: Invalid Calculation parameter" % (nerdystats.__name__))
+
 def tickTock():
     global GLOBAL_TICK
     GLOBAL_TICK = 0
@@ -308,6 +316,8 @@ def init():
     parser.add_argument('--tickLen', action="store", type=float, default="1e-5")
     # total amount of time to run
     parser.add_argument('-T', action="store", type=int, default="100000")
+    # what is being calculated, to pass to nerdyStats for relevant stats.
+    parser.add_argument('--calc', action="store", type=str, default='throughput')
 
     # args is a type dict.
     argsDict = vars(parser.parse_args())
@@ -327,6 +337,8 @@ def init():
     # fixed value for the program
     global TICK_DURATION
     TICK_DURATION = argsDict['tickLen']
+    global CALC
+    CALC = argsDict['calc']
 
     '''
     one time calculation
