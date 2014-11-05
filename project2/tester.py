@@ -10,7 +10,7 @@ import sys
 import subprocess
 
 def main(args):
-    test = './simulator.py -N 10'
+    test = './simulator.py -N 3'
     process = subprocess.Popen(test, shell=True)
 
 if __name__ == '__main__':

@@ -81,6 +81,14 @@ class Packet:
             return True
         return False
 
+def dequeue_helper():
+    for packet in link_queue:
+        packet_trans_dist = max(packet.sender_index, D_TOTAL_PROP - packet.sender_index)
+        if ((packet.jamming and (GLOBAL_TICK >= packet.send_time + packet_trans_dist + JAMMING_TIME))
+         or (not packet.jamming and (GLOBAL_TICK >= packet.send_time + packet_trans_dist + D_TRANS))):
+                link_queue.remove(packet)
+                logging.info("[Dequeue] current time: %s, sender: %s, send_time: %s" % (GLOBAL_TICK, packet.sender, packet.send_time))
+
 def next_gen_time(current_tick):
     gen_number = random.random()
     gen_time = (-1.0 / ARRIVAL_RATE) * math.log(1 - gen_number)
@@ -90,7 +98,7 @@ def next_gen_time(current_tick):
 # return true when the node detects any signal from other sources
 # medium is either busy or theres an collision
 def is_medium_busy(from_index):
-    for packet in list(link_queue.queue):
+    for packet in link_queue:
         if packet.sender_index != from_index:
             if packet.is_detected(from_index, GLOBAL_TICK):
                 return True
@@ -128,6 +136,7 @@ def transmit_worker():
     src_name = threading.currentThread().getName()
     send_time = NODES_SRC_TIME_DICT[src_name]
     src_idx = NODES_SRC_LIST.index(src_name) * 10 / (ETHERNET_SPEED*TICK_DURATION)
+    logging.info("[%s]: src_index: %s.." % (src_name, src_idx))
     newPacket = None
     current_time = GLOBAL_TICK
     while (current_time < TOTAL_TIME):
@@ -175,17 +184,9 @@ def transmit_worker():
 
                 logging.debug("[%s]: Medium Sensing completed, start to transmit" % (src_name))
 
-                '''
-                if (link_queue.qsize() == MAX_LINK_SIZE):
-                    logging.error("[%s]: Failed to transmit: src:%s | dest:%s" % \
-                            (src_name, newPacket.sender, newPacket.destination))
-                    global packet_dropped
-                    packet_dropped += 1
-                '''
-
-                logging.info("[%s]: Transmitting packet " % (src_name))
+                logging.info("[%s]: Transmitting packet at tick %s" % (src_name, current_tick))
                 try:
-                    link_queue.put(newPacket)
+                    link_queue.append(newPacket)
                 except Exception as e:
                     logging.error("[%s]: Exception was raised! msg: %s" % (src_name, e.message))
                 finally:
@@ -201,20 +202,24 @@ def transmit_worker():
                             NODES_SRC_CLK_DICT[src_name] += 1
                             # jamming signal detected
                             is_jammed = False
-                            for packet in list(link_queue.queue):
+                            for packet in link_queue:
                                 if (packet.jamming and (packet.sender != src_name)):
                                     # abort current transmition
                                     is_jammed = True
-                                    link_queue.remove(newPacket)
+                                    try:
+                                        link_queue.remove(newPacket)
+                                    except ValueError:
+                                        pass
                                     BEB_ret = 0
+                                    NODES_SRC_TIME_DICT[src_name] = next_gen_time(current_tick)
                                     logging.info("[%s]: signal jammed" % (src_name))
                                     logging.info("[%s]: next_gen at: %s" % (src_name, NODES_SRC_TIME_DICT[src_name]))
-                                    NODES_SRC_TIME_DICT[src_name] = next_gen_time(current_tick)
                             if not is_jammed:
                                 # collision detected
                                 collision_detected = is_medium_busy(src_idx)
                                 if collision_detected:
                                     transmit_time = 0
+                                    link_queue.remove(newPacket)
                                     newPacket = Packet(src_name, src_idx, send_time, True)
                                     # transmit jamming signal for 48 bit time
                                     while (transmit_time < JAMMING_TIME):
@@ -280,14 +285,9 @@ def tickTock():
                 all_updated = False
         if all_updated:
             GLOBAL_TICK += 1
-            if GLOBAL_TICK % 100 == 0:
+            if (GLOBAL_TICK % 100 == 0):
                 logging.info("[%s]: current global tick at: %s" % (tickTock.__name__, GLOBAL_TICK))
-        # dequeue the packets
-        for packet in list(link_queue.queue):
-            # packet has fulling transmitted to the beginning and end of the medium
-            if (packet.is_detected(D_TRANS*-1, GLOBAL_TICK) and packet.is_detected(D_TOTAL_PROP + D_TRANS, GLOBAL_TICK)):
-                link_queue.remove(packet)
-                logging.info("[dequeueing packet] current time: %s, sender: %s, send_time: %s" % (GLOBAL_TICK, packet.sender, packet.sender_time))
+            dequeue_helper()
 
 def main(argv):
     print "Program is starting..."
@@ -306,7 +306,7 @@ def init():
     # number of computers
     parser.add_argument('-N', action="store", type=int, default="10")
     # average arrival rate packets per second
-    parser.add_argument('-A', action="store", type=float, default="5")
+    parser.add_argument('-A', action="store", type=float, default="500000")
     # speed of Lan in bits per second (default = 1Mbps)
     parser.add_argument('-W', action="store", type=int, default="1000000")
     # packet length in bits (default = 1500bytes = 12000bits)
@@ -314,7 +314,7 @@ def init():
     # persistence parameter
     parser.add_argument('-P', action="store", type=str, default="1")
     # the tick intervals (seconds)
-    parser.add_argument('--tickLen', action="store", type=float, default="1e-5")
+    parser.add_argument('--tickLen', action="store", type=float, default="1e-8")
     # total amount of time to run
     parser.add_argument('-T', action="store", type=int, default="100000")
 
@@ -351,20 +351,20 @@ def init():
     D_TOTAL_PROP      = math.ceil((10*(SERVERS-1)) / (ETHERNET_SPEED*TICK_DURATION))
     # 512 bit time in ticks
     global T_P
-    T_P               = math.ceil(512/(ETHERNET_SPEED*TICK_DURATION))
+    T_P               = math.ceil(512*LAN_SPEED/(ETHERNET_SPEED*TICK_DURATION))
     global MAX_LINK_SIZE
     MAX_LINK_SIZE     = LAN_SPEED * 8
     # convert 96 bit time to ticks
     global SENSE_MEDIUM_TIME
-    SENSE_MEDIUM_TIME = math.ceil(96/(ETHERNET_SPEED*TICK_DURATION))
+    SENSE_MEDIUM_TIME = math.ceil(96*LAN_SPEED/(ETHERNET_SPEED*TICK_DURATION))
     # convert 48 bit time to ticks
     global JAMMING_TIME
-    JAMMING_TIME = math.ceil(48/(ETHERNET_SPEED*TICK_DURATION))
+    JAMMING_TIME = math.ceil(48*LAN_SPEED/(ETHERNET_SPEED*TICK_DURATION))
     '''
     initiate date for the nodes
     '''
     global link_queue
-    link_queue = Queue.Queue(MAX_LINK_SIZE)
+    link_queue = list()
 
     # Each node is a possible sender and is a thread.
     for thread in xrange(0, SERVERS):
