@@ -146,7 +146,7 @@ def transmit_worker():
                 logging.debug("[%s]: Starting Medium Sensing for 96 bit time" % (src_name))
                 sense_time = 0
                 # 1-persistance case:
-                if P_PRAM == 1:
+                if P_PRAM == '1':
                     # this will sense if the medium is free for 96 bit time
                     while sense_time < SENSE_MEDIUM_TIME:
                         # 1 tick has passed
@@ -155,20 +155,21 @@ def transmit_worker():
                             NODES_SRC_CLK_DICT[src_name] += 1
                             if is_medium_busy(src_idx):
                                 sense_time = 0
-                                logging.info("[%s]: Channel Busy, Restarting carrier sensing.." % (src_name))
+                                logging.debug("[%s]: Channel Busy, Restarting carrier sensing.." % (src_name))
                             else:
                                 sense_time += 1
 
                 # TODO: update logic to make sure medium sensing takes 96 bit time
                 # non-persistance case:
-                elif P_PRAM == 2:
+                elif P_PRAM == '2':
                     while newPacket.is_detected(src_idx, tick):
                         waitFor = next_gen_time(GLOBAL_TICK)
-                        logging.info("[%s]: Channel Busy, waiting for %s (random) time.." % (src_name, waitFor))
+                        logging.debug("[%s]: Channel Busy, waiting for %s (random) time.." % (src_name, waitFor))
                         time.sleep(waitFor)
 
+
                 # TODO: p-persistance case:
-                elif P_PRAM == 3:
+                elif P_PRAM != '1' and P_PRAM != '2':
                     print "some other cool yet to be implemented logic"
 
                 logging.debug("[%s]: Medium Sensing completed, start to transmit" % (src_name))
@@ -265,6 +266,9 @@ def nerdystats():
     if CALC == 'avgDelay':
         logging.info("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
         logging.debug("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
+    if CALC == 'both':
+        logging.info("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
+        logging.info("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
     else:
         logging.error("[%s]: Invalid Calculation parameter" % (nerdystats.__name__))
 
