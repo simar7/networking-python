@@ -136,6 +136,7 @@ def transmit_worker():
     src_idx = NODES_SRC_LIST.index(src_name) * 10 / (ETHERNET_SPEED*TICK_DURATION)
     logging.info("[%s]: src_index: %s.." % (src_name, src_idx))
     newPacket = None
+    # TODO: Do we really need this assignment?
     current_time = GLOBAL_TICK
     while (current_time < TOTAL_TIME):
         send_time = NODES_SRC_TIME_DICT[src_name]
@@ -192,9 +193,7 @@ def transmit_worker():
                     transmit_time = 0
                     collision_detected = False
                     is_jammed = False
-                    while ((transmit_time < D_TRANS)
-                       and (collision_detected == False)
-                       and (is_jammed == False)):
+                    while ((transmit_time < D_TRANS) and (collision_detected == False) and (is_jammed == False)):
                         # 1 tick has passed
                         current_tick = GLOBAL_TICK
                         if NODES_SRC_CLK_DICT[src_name] != current_tick:
@@ -203,12 +202,12 @@ def transmit_worker():
                             is_jammed = False
                             for packet in link_queue:
                                 if (packet.jamming and (packet.sender != src_name)):
-                                    # abort current transmition
+                                    # abort current transmission
                                     is_jammed = True
                                     try:
                                         link_queue.remove(newPacket)
-                                    except ValueError:
-                                        pass
+                                    except Exception as e:
+                                        logging.debug("[%s]: Nothing to remove, safe. | ret_msg: %s" % (src_name, e.message))
                                     BEB_ret = 0
                                     NODES_SRC_TIME_DICT[src_name] = next_gen_time(current_tick)
                                     logging.info("[%s]: signal jammed" % (src_name))
@@ -218,7 +217,10 @@ def transmit_worker():
                                 collision_detected = is_medium_busy(src_idx)
                                 if collision_detected:
                                     transmit_time = 0
-                                    link_queue.remove(newPacket)
+                                    try:
+                                        link_queue.remove(newPacket)
+                                    except Exception as e:
+                                        logging.debug("[%s]: Nothing to remove, safe. | ret_msg: %s" % (src_name, e.message))
                                     newPacket = Packet(src_name, src_idx, send_time, True)
                                     # transmit jamming signal for 48 bit time
                                     while (transmit_time < JAMMING_TIME):
@@ -378,8 +380,6 @@ def init():
     '''
     initiate date for the nodes
     '''
-    global link_queue
-    link_queue = list()
 
     # Each node is a possible sender and is a thread.
     for thread in xrange(0, SERVERS):
