@@ -16,30 +16,37 @@ numberOfNodesList = []
 
 lan_speed = 10000000
 pkt_len_in_bits = 12000
-p_pram = [1, 2, 0.01]
+# 1 = 1-Per; 2 = No-per; p(float) = p(float)-per
+p_pram_sanity = [0.1]
+p_pram = [2, 0.01, 0.1, 0.5, 0.6, 0.9, 1]
+p_pram_q5 = [0.01, 0.1, 0.3, 0.6, 1]
 ticklen = 1e-2
 totalticks = 1000
 whatWeNeed = None
 
 wittyErrorMsgs = ["You're a bad tester, go home.", \
                   "Please handle with care, stuff borked", \
+                  "I think the prof cares less about this project that you do", \
                   "I'm sorry master, this didn't work out", \
                   "@#$*@#$ @#$( @#*$ @#$(&^^ @**$#@", \
+                  "Well.. what are you waiting for, fix this shit cuz it ain't workin.", \
+                  "DAT AP tho..", \
                   "110101 100100 010101 10010101 100100101 10010"]
 
 def makeTests():
     for nodeCount in numberOfNodesList:
         for avgPackets in packetPerSecList:
-            global testList
-            testList.append('./simulator.py -N %s -A %s -W %s -L %s -P %s --tickLen %s -T %s --calc %s' %\
-                    (nodeCount, avgPackets, lan_speed, pkt_len_in_bits, str(p_pram[0]), ticklen, totalticks, whatWeNeed))
+            for perElem in p_pram:
+                global testList
+                testList.append('./simulator.py -N %s -A %s -W %s -L %s -P %s --tickLen %s -T %s --calc %s' %\
+                        (nodeCount, avgPackets, lan_speed, pkt_len_in_bits, str(p_pram[perElem]), ticklen, totalticks, whatWeNeed))
 
-def makeTests_Q5(p_list, nodeCount):
-    for pers in p_list:
-        for avgPackets in packetPerSecList:
+def makeTests_Q5(nodeCount):
+    for avgPackets in packetPerSecList:
+        for perElem in xrange(0, len(p_pram_q5)):
             global testList
             testList.append('./simulator.py -N %s -A %s -W %s -L %s -P %s --tickLen %s -T %s --calc %s' %\
-                    (nodeCount, avgPackets, lan_speed, pkt_len_in_bits, pers, ticklen, totalticks, whatWeNeed))
+                    (nodeCount, avgPackets, lan_speed, pkt_len_in_bits, p_pram_q5[perElem], ticklen, totalticks, whatWeNeed))
 
 def runTests():
     print "[%s]: Brace yourself, running tests now..." % (runTests.__name__)
@@ -64,7 +71,7 @@ def main(args):
             global testlist
             testList.append('./simulator.py -N %s -A %s -W %s -L %s -P %s --tickLen %s -T %s --calc %s' %\
                     (numberOfNodesList[0], packetPerSecList[0], lan_speed, \
-                    pkt_len_in_bits, p_pram[2], ticklen, totalticks, whatWeNeed))
+                    pkt_len_in_bits, p_pram_sanity[0], ticklen, totalticks, whatWeNeed))
 
         elif args[1] == 'q1':
             for nodeCount in xrange(20, 120, 20):
@@ -99,11 +106,10 @@ def main(args):
             makeTests()
 
         elif args[1] == 'q5':
-            persistence_list = [0.01, 0.1, 0.3, 0.6, 1]
             servers = 30
             packetPerSecList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
             whatWeNeed = 'both'
-            makeTests_Q5(persistence_list, servers)
+            makeTests_Q5(servers)
 
         else:
             raise Exception("Please enter a valid question to solve for.")

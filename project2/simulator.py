@@ -228,7 +228,6 @@ def transmit_worker():
                                         global NODES_SRC_IDLE_DICT
                                         NODES_SRC_IDLE_DICT[src_name] = NODES_SRC_IDLE_DICT[src_name] + BEB_ret
                                 else:
-                                    print "med not busy"
                                     sense_time += 1
 
                 logging.debug("[%s]: Medium Sensing completed, start to transmit" % (src_name))
