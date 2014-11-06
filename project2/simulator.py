@@ -219,7 +219,8 @@ def transmit_worker():
                                 collision_detected = is_medium_busy(src_idx)
                                 if collision_detected:
                                     transmit_time = 0
-                                    link_queue.remove(newPacket)
+                                    if newPacket in link_queue:
+                                        link_queue.remove(newPacket)
                                     newPacket = Packet(src_name, src_idx, send_time, True)
                                     # transmit jamming signal for 48 bit time
                                     while (transmit_time < JAMMING_TIME):
@@ -246,6 +247,7 @@ def transmit_worker():
                     if (transmit_time >= D_TRANS):
                         logging.debug("[%s] packet transmitted")
                         BEB_ret = 0
+                        global packet_transmitted
                         packet_transmitted += 1
                         NODES_SRC_TIME_DICT[src_name] = next_gen_time(current_tick)
                         logging.info("[%s]: next_gen at: %s" % (src_name, NODES_SRC_TIME_DICT[src_name]))
@@ -306,7 +308,7 @@ def init():
     # number of computers
     parser.add_argument('-N', action="store", type=int, default="10")
     # average arrival rate packets per second
-    parser.add_argument('-A', action="store", type=float, default="500000")
+    parser.add_argument('-A', action="store", type=float, default="5")
     # speed of Lan in bits per second (default = 1Mbps)
     parser.add_argument('-W', action="store", type=int, default="1000000")
     # packet length in bits (default = 1500bytes = 12000bits)
@@ -314,7 +316,7 @@ def init():
     # persistence parameter
     parser.add_argument('-P', action="store", type=str, default="1")
     # the tick intervals (seconds)
-    parser.add_argument('--tickLen', action="store", type=float, default="1e-8")
+    parser.add_argument('--tickLen', action="store", type=float, default="1e-3")
     # total amount of time to run
     parser.add_argument('-T', action="store", type=int, default="100000")
 
@@ -344,22 +346,24 @@ def init():
     TOTAL_TIME        = TICK_DURATION * TOTAL_TICKS
     # the total ticks it take for a full packet to be transmitted
     global D_TRANS
-    D_TRANS           = math.ceil((PACKET_LEN*LAN_SPEED)/ (ETHERNET_SPEED*TICK_DURATION))
+    D_TRANS           = math.ceil(PACKET_LEN/(LAN_SPEED*TICK_DURATION))
+    logging.info("[%s]: Transmission Delay: %s" % (init.__name__, D_TRANS))
     # the total ticks it take for a packet to be propagated
     # from the first node to the last node
     global D_TOTAL_PROP
     D_TOTAL_PROP      = math.ceil((10*(SERVERS-1)) / (ETHERNET_SPEED*TICK_DURATION))
+    logging.info("[%s]: Total Propagation Delay: %s" % (init.__name__, D_TOTAL_PROP))
     # 512 bit time in ticks
     global T_P
-    T_P               = math.ceil(512*LAN_SPEED/(ETHERNET_SPEED*TICK_DURATION))
+    T_P               = math.ceil(512/(LAN_SPEED*TICK_DURATION))
     global MAX_LINK_SIZE
     MAX_LINK_SIZE     = LAN_SPEED * 8
     # convert 96 bit time to ticks
     global SENSE_MEDIUM_TIME
-    SENSE_MEDIUM_TIME = math.ceil(96*LAN_SPEED/(ETHERNET_SPEED*TICK_DURATION))
+    SENSE_MEDIUM_TIME = math.ceil(96/(LAN_SPEED*TICK_DURATION))
     # convert 48 bit time to ticks
     global JAMMING_TIME
-    JAMMING_TIME = math.ceil(48*LAN_SPEED/(ETHERNET_SPEED*TICK_DURATION))
+    JAMMING_TIME = math.ceil(48/(LAN_SPEED*TICK_DURATION))
     '''
     initiate date for the nodes
     '''
