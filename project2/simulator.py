@@ -79,6 +79,9 @@ class Packet:
             return True
         return False
 
+def getProbability():
+    return random.uniform(0, 2.0 * float(P_PRAM))
+
 def dequeue_helper():
     for packet in link_queue:
         packet_trans_dist = max(packet.sender_index, D_TOTAL_PROP - packet.sender_index)
@@ -168,18 +171,66 @@ def transmit_worker():
                             else:
                                 sense_time += 1
 
-                # TODO: update logic to make sure medium sensing takes 96 bit time
                 # non-persistance case:
                 elif P_PRAM == '2':
                     while newPacket.is_detected(src_idx, tick):
                         waitFor = next_gen_time(GLOBAL_TICK)
                         logging.debug("[%s]: Channel Busy, waiting for %s (random) time.." % (src_name, waitFor))
-                        time.sleep(waitFor)
+                        for wait_ticks in xrange(0, waitFor):
+                            if (wait_ticks % 100 == 0):
+                                logging.debug("[%s]: Waiting for %s ticks to pass before retrying.." % (src_name, waitFor))
 
-
-                # TODO: p-persistance case:
+                # p-persistance case:
                 elif P_PRAM != '1' and P_PRAM != '2':
-                    print "some other cool yet to be implemented logic"
+                    # this will sense if the medium is free for 96 bit time
+                    double_sensed = False
+                    while sense_time < SENSE_MEDIUM_TIME:
+                        # 1 tick has passed
+                        current_tick = GLOBAL_TICK
+                        if (current_tick != NODES_SRC_CLK_DICT[src_name]):
+                            if double_sensed == False:
+                                NODES_SRC_CLK_DICT[src_name] += 1
+                                if is_medium_busy(src_idx):
+                                    sense_time = 0
+                                    logging.debug("[%s]: Channel Busy, Restarting carrier sensing.." % (src_name))
+                                else:
+                                    sense_time += 1
+
+                            # TODO: Logic here for probability stuff..
+                            prob = getProbability()
+                            if prob >= float(P_PRAM):
+                                waitFor = next_gen_time(GLOBAL_TICK)
+                                logging.debug("[%s]: Channel Busy, waiting for %s second until next slot." % (src_name, waitFor))
+                                for wait_ticks in xrange(0, waitFor):
+                                    if (wait_ticks % 100 == 0):
+                                        logging.debug("[%s]: Waiting for %s ticks to pass before retrying.." % (src_name, waitFor))
+                            else:
+                                logging.debug("[%s]: I'm a lucky node, probability: %s | P_PRAM: %s" % (src_name, prob, P_PRAM))
+                                break
+
+                            # Sense part 2
+                            current_tick = GLOBAL_TICK
+                            if current_tick != NODES_SRC_CLK_DICT[src_name]:
+                                double_sensed = True
+                                NODES_SRC_CLK_DICT[src_name] += 1
+                                if is_medium_busy(src_idx):
+                                    sense_time = 0
+                                    BEB_ret = binary_backoff(src_name)
+                                    if BEB_ret == 0:
+                                        logging.debug("[%s]: Bad BEB return, dropping packet!" % src_name)
+                                        global packet_dropped
+                                        packet_dropped += 1
+                                        break
+                                    else:
+                                        logging.debug("[%s]: I'm an unlucky node,\
+                                                waiting a BEB for %s ticks." % (src_name, BEB_ret))
+                                        global packet_collided
+                                        packet_collided += 1
+                                        global NODES_SRC_IDLE_DICT
+                                        NODES_SRC_IDLE_DICT[src_name] = NODES_SRC_IDLE_DICT[src_name] + BEB_ret
+                                else:
+                                    print "med not busy"
+                                    sense_time += 1
 
                 logging.debug("[%s]: Medium Sensing completed, start to transmit" % (src_name))
 
@@ -245,7 +296,7 @@ def transmit_worker():
                                     transmit_time += 1
 
                     if (transmit_time >= D_TRANS):
-                        logging.debug("[%s] packet transmitted")
+                        logging.debug("[%s] packet transmitted" % (src_name))
                         BEB_ret = 0
                         global packet_transmitted
                         packet_transmitted += 1
@@ -253,7 +304,7 @@ def transmit_worker():
                         logging.info("[%s]: next_gen at: %s" % (src_name, NODES_SRC_TIME_DICT[src_name]))
 
             else:
-                logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
+                #logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
                 NODES_SRC_IDLE_DICT[src_name] += 1
 
 # The schedule basically calculates randomly generated
@@ -313,7 +364,7 @@ def main(argv):
     nerdystats()
 
 def init():
-    logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
     parser = argparse.ArgumentParser(description= \
             "CSMA/CA protocols")
 
