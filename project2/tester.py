@@ -16,7 +16,7 @@ numberOfNodesList = []
 
 lan_speed = 10000000
 pkt_len_in_bits = 12000
-p_pram = [1, 2, 3]
+p_pram = [1, 2, 0.01]
 ticklen = 1e-2
 totalticks = 1000
 whatWeNeed = None
