@@ -40,7 +40,6 @@ NODES_SRC_TIME_DICT = {} # key:value <=> src_node_thread:tx_time
 NODES_SRC_DEST_DICT = {} # key:value <=> src_node_thread:dst_node_thread
 NODES_SRC_IDLE_DICT = {} # key:value <=> src_node_thread:idle_time
 NODES_EXP_BACKOFF   = {} # key:value <=> node:{i: index, Tb : wait_time}
-mutex               = Lock()
 sender_threads      = []
 link_queue          = []
 GLOBAL_TICK         = 0
@@ -245,7 +244,7 @@ def transmit_worker():
                                     transmit_time += 1
 
                     if (transmit_time >= D_TRANS):
-                        logging.debug("[%s] packet transmitted")
+                        logging.debug("[%s] packet transmitted" % (src_name))
                         BEB_ret = 0
                         global packet_transmitted
                         packet_transmitted += 1
@@ -309,11 +308,13 @@ def main(argv):
     # Start all the threads.
     [thread.start() for thread in sender_threads]
     tickTock()
-    [thread.join() for thread in sender_threads]
+    [thread.join(timeout=10) for thread in sender_threads]
+    for thread in sender_threads:
+        print "thread = %s : %s" % (thread, thread.isAlive())
     nerdystats()
 
 def init():
-    logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
     parser = argparse.ArgumentParser(description= \
             "CSMA/CA protocols")
 
