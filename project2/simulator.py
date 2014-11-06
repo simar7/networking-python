@@ -133,8 +133,7 @@ def transmit_worker():
     BEB_ret = 0
     src_name = threading.currentThread().getName()
     send_time = NODES_SRC_TIME_DICT[src_name]
-    src_idx = NODES_SRC_LIST.index(src_name) * 10 / (ETHERNET_SPEED*TICK_DURATION)
-    logging.info("[%s]: src_index: %s.." % (src_name, src_idx))
+    src_idx = math.ceil(NODES_SRC_LIST.index(src_name) * 10 / (ETHERNET_SPEED*TICK_DURATION))
     newPacket = None
     # TODO: Do we really need this assignment?
     current_time = GLOBAL_TICK
@@ -329,7 +328,7 @@ def init():
     # persistence parameter
     parser.add_argument('-P', action="store", type=str, default="1")
     # the tick intervals (seconds)
-    parser.add_argument('--tickLen', action="store", type=float, default="1e-3")
+    parser.add_argument('--tickLen', action="store", type=float, default="1e-5")
     # total amount of time to run
     parser.add_argument('-T', action="store", type=int, default="100000")
     # what is being calculated, to pass to nerdyStats for relevant stats.
@@ -378,9 +377,11 @@ def init():
     # convert 96 bit time to ticks
     global SENSE_MEDIUM_TIME
     SENSE_MEDIUM_TIME = math.ceil(96/(LAN_SPEED*TICK_DURATION))
+    logging.info("[%s]: Sense Medium Time: %s" % (init.__name__, SENSE_MEDIUM_TIME))
     # convert 48 bit time to ticks
     global JAMMING_TIME
     JAMMING_TIME = math.ceil(48/(LAN_SPEED*TICK_DURATION))
+    logging.info("[%s]: Jamming Time: %s" % (init.__name__, JAMMING_TIME))
     '''
     initiate date for the nodes
     '''
