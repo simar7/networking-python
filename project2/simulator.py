@@ -29,14 +29,11 @@ D_TOTAL_PROP      = 0
 MAX_LINK_SIZE     = 0
 SENSE_MEDIUM_TIME = 0
 JAMMING_TIME      = 0
-'''
-binary exponential backoff
-'''
+
+# BEB Params
 K_MAX = 10
 T_P = 0
-'''
-transmittion
-'''
+
 NODES_SRC_LIST      = []
 NODES_SRC_CLK_DICT  = {} # key:value <=> node:current_tick
 NODES_SRC_TIME_DICT = {} # key:value <=> src_node_thread:tx_time
@@ -47,13 +44,14 @@ mutex               = Lock()
 sender_threads      = []
 link_queue          = []
 GLOBAL_TICK         = 0
-'''
-data collection
-'''
+
+# Data Collection
 packet_dropped      = 0
 packet_transmitted  = 0
 packet_collided     = 0
-
+CALC = None
+throughput = 0
+avgDelay = 0
 
 class Packet:
     def __init__(self, sender, sender_index, send_time, jamming = False):
@@ -138,6 +136,7 @@ def transmit_worker():
     src_idx = NODES_SRC_LIST.index(src_name) * 10 / (ETHERNET_SPEED*TICK_DURATION)
     logging.info("[%s]: src_index: %s.." % (src_name, src_idx))
     newPacket = None
+    # TODO: Do we really need this assignment?
     current_time = GLOBAL_TICK
     while (current_time < TOTAL_TIME):
         send_time = NODES_SRC_TIME_DICT[src_name]
@@ -157,7 +156,7 @@ def transmit_worker():
                 logging.debug("[%s]: Starting Medium Sensing for 96 bit time" % (src_name))
                 sense_time = 0
                 # 1-persistance case:
-                if P_PRAM == 1:
+                if P_PRAM == '1':
                     # this will sense if the medium is free for 96 bit time
                     while sense_time < SENSE_MEDIUM_TIME:
                         # 1 tick has passed
@@ -166,20 +165,21 @@ def transmit_worker():
                             NODES_SRC_CLK_DICT[src_name] += 1
                             if is_medium_busy(src_idx):
                                 sense_time = 0
-                                logging.info("[%s]: Channel Busy, Restarting carrier sensing.." % (src_name))
+                                logging.debug("[%s]: Channel Busy, Restarting carrier sensing.." % (src_name))
                             else:
                                 sense_time += 1
 
                 # TODO: update logic to make sure medium sensing takes 96 bit time
                 # non-persistance case:
-                elif P_PRAM == 2:
+                elif P_PRAM == '2':
                     while newPacket.is_detected(src_idx, tick):
                         waitFor = next_gen_time(GLOBAL_TICK)
-                        logging.info("[%s]: Channel Busy, waiting for %s (random) time.." % (src_name, waitFor))
+                        logging.debug("[%s]: Channel Busy, waiting for %s (random) time.." % (src_name, waitFor))
                         time.sleep(waitFor)
 
+
                 # TODO: p-persistance case:
-                elif P_PRAM == 3:
+                elif P_PRAM != '1' and P_PRAM != '2':
                     print "some other cool yet to be implemented logic"
 
                 logging.debug("[%s]: Medium Sensing completed, start to transmit" % (src_name))
@@ -193,9 +193,7 @@ def transmit_worker():
                     transmit_time = 0
                     collision_detected = False
                     is_jammed = False
-                    while ((transmit_time < D_TRANS)
-                       and (collision_detected == False)
-                       and (is_jammed == False)):
+                    while ((transmit_time < D_TRANS) and (collision_detected == False) and (is_jammed == False)):
                         # 1 tick has passed
                         current_tick = GLOBAL_TICK
                         if NODES_SRC_CLK_DICT[src_name] != current_tick:
@@ -204,12 +202,12 @@ def transmit_worker():
                             is_jammed = False
                             for packet in link_queue:
                                 if (packet.jamming and (packet.sender != src_name)):
-                                    # abort current transmition
+                                    # abort current transmission
                                     is_jammed = True
                                     try:
                                         link_queue.remove(newPacket)
-                                    except ValueError:
-                                        pass
+                                    except Exception as e:
+                                        logging.debug("[%s]: Nothing to remove, safe. | ret_msg: %s" % (src_name, e.message))
                                     BEB_ret = 0
                                     NODES_SRC_TIME_DICT[src_name] = next_gen_time(current_tick)
                                     logging.info("[%s]: signal jammed" % (src_name))
@@ -219,8 +217,11 @@ def transmit_worker():
                                 collision_detected = is_medium_busy(src_idx)
                                 if collision_detected:
                                     transmit_time = 0
-                                    if newPacket in link_queue:
-                                        link_queue.remove(newPacket)
+                                    try:
+                                        if newPacket in link_queue:
+                                            link_queue.remove(newPacket)
+                                    except Exception as e:
+                                        logging.debug("[%s]: Nothing to remove, safe. | ret_msg: %s" % (src_name, e.message))
                                     newPacket = Packet(src_name, src_idx, send_time, True)
                                     # transmit jamming signal for 48 bit time
                                     while (transmit_time < JAMMING_TIME):
@@ -276,6 +277,18 @@ def nerdystats():
         logging.debug("[%s]: Node #%s had idle time: %s ticks of fun time." %\
                 (nerdystats.__name__, node, NODES_SRC_IDLE_DICT[node]))
 
+    if CALC == 'throughput':
+        logging.info("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
+        logging.debug("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
+    if CALC == 'avgDelay':
+        logging.info("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
+        logging.debug("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
+    if CALC == 'both':
+        logging.info("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
+        logging.info("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
+    else:
+        logging.error("[%s]: Invalid Calculation parameter" % (nerdystats.__name__))
+
 def tickTock():
     global GLOBAL_TICK
     GLOBAL_TICK = 0
@@ -319,6 +332,8 @@ def init():
     parser.add_argument('--tickLen', action="store", type=float, default="1e-3")
     # total amount of time to run
     parser.add_argument('-T', action="store", type=int, default="100000")
+    # what is being calculated, to pass to nerdyStats for relevant stats.
+    parser.add_argument('--calc', action="store", type=str, default='throughput')
 
     # args is a type dict.
     argsDict = vars(parser.parse_args())
@@ -338,6 +353,8 @@ def init():
     # fixed value for the program
     global TICK_DURATION
     TICK_DURATION = argsDict['tickLen']
+    global CALC
+    CALC = argsDict['calc']
 
     '''
     one time calculation
@@ -367,8 +384,6 @@ def init():
     '''
     initiate date for the nodes
     '''
-    global link_queue
-    link_queue = list()
 
     # Each node is a possible sender and is a thread.
     for thread in xrange(0, SERVERS):
