@@ -292,7 +292,7 @@ def nerdystats():
 def tickTock():
     global GLOBAL_TICK
     GLOBAL_TICK = 0
-    while GLOBAL_TICK < TOTAL_TICKS-1:
+    while GLOBAL_TICK < TOTAL_TICKS:
         # clock synchronization across all nodes
         all_updated = True
         for nodes in NODES_SRC_CLK_DICT:
