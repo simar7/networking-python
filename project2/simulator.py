@@ -139,7 +139,7 @@ def transmit_worker():
     newPacket = None
     # TODO: Do we really need this assignment?
     current_time = GLOBAL_TICK
-    while (current_time < TOTAL_TIME):
+    while current_time < TOTAL_TICKS:
         send_time = NODES_SRC_TIME_DICT[src_name]
         # generate a new packet after getting an error in binary exponential backoff
         if (BEB_ret == 0):
@@ -148,22 +148,27 @@ def transmit_worker():
 
         # a tick passed by
         current_tick = GLOBAL_TICK
-        if (NODES_SRC_CLK_DICT[src_name] != current_tick):
+        if (NODES_SRC_CLK_DICT[src_name] < current_tick):
+            global NODES_SRC_CLK_DICT
             NODES_SRC_CLK_DICT[src_name] = current_tick
 
             # Is it the right time for me as a thread to transmit?
-            if is_right_time(src_name):
-
+            if not is_right_time(src_name):
+                logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
+                global NODES_SRC_IDLE_DICT
+                NODES_SRC_IDLE_DICT[src_name] = current_tick
+            else:
                 logging.debug("[%s]: Starting Medium Sensing for 96 bit time" % (src_name))
                 sense_time = 0
                 # 1-persistance case:
                 if P_PRAM == '1':
                     # this will sense if the medium is free for 96 bit time
-                    while sense_time < SENSE_MEDIUM_TIME:
+                    while ((sense_time < SENSE_MEDIUM_TIME) and (current_time < TOTAL_TICKS)):
                         # 1 tick has passed
                         current_tick = GLOBAL_TICK
                         if current_tick != NODES_SRC_CLK_DICT[src_name]:
-                            NODES_SRC_CLK_DICT[src_name] += 1
+                            global NODES_SRC_CLK_DICT
+                            NODES_SRC_CLK_DICT[src_name] = current_tick
                             if is_medium_busy(src_idx):
                                 sense_time = 0
                                 logging.debug("[%s]: Channel Busy, Restarting carrier sensing.." % (src_name))
@@ -183,10 +188,12 @@ def transmit_worker():
                 elif P_PRAM != '1' and P_PRAM != '2':
                     # this will sense if the medium is free for 96 bit time
                     double_sensed = False
-                    while sense_time < SENSE_MEDIUM_TIME:
+                    while ((sense_time < SENSE_MEDIUM_TIME) and (current_time < TOTAL_TICKS)):
                         # 1 tick has passed
                         current_tick = GLOBAL_TICK
                         if (current_tick != NODES_SRC_CLK_DICT[src_name]):
+                            global NODES_SRC_CLK_DICT
+                            NODES_SRC_CLK_DICT[src_name] = current_tick
                             if double_sensed == False:
                                 NODES_SRC_CLK_DICT[src_name] += 1
                                 if is_medium_busy(src_idx):
@@ -209,9 +216,10 @@ def transmit_worker():
 
                             # Sense part 2
                             current_tick = GLOBAL_TICK
-                            if current_tick != NODES_SRC_CLK_DICT[src_name]:
+                            if current_tick < NODES_SRC_CLK_DICT[src_name]:
+                                global NODES_SRC_CLK_DICT
+                                NODES_SRC_CLK_DICT[src_name] = current_tick
                                 double_sensed = True
-                                NODES_SRC_CLK_DICT[src_name] += 1
                                 if is_medium_busy(src_idx):
                                     sense_time = 0
                                     BEB_ret = binary_backoff(src_name)
@@ -241,11 +249,15 @@ def transmit_worker():
                     transmit_time = 0
                     collision_detected = False
                     is_jammed = False
-                    while ((transmit_time < D_TRANS) and (collision_detected == False) and (is_jammed == False)):
+                    while ((transmit_time < D_TRANS)
+                       and (collision_detected == False)
+                       and (is_jammed == False)
+                       and (current_time < TOTAL_TICKS)):
                         # 1 tick has passed
                         current_tick = GLOBAL_TICK
-                        if NODES_SRC_CLK_DICT[src_name] != current_tick:
-                            NODES_SRC_CLK_DICT[src_name] += 1
+                        if NODES_SRC_CLK_DICT[src_name] < current_tick:
+                            global NODES_SRC_CLK_DICT
+                            NODES_SRC_CLK_DICT[src_name] = current_tick
                             # jamming signal detected
                             is_jammed = False
                             for packet in link_queue:
@@ -272,10 +284,11 @@ def transmit_worker():
                                         logging.debug("[%s]: Nothing to remove, safe. | ret_msg: %s" % (src_name, e.message))
                                     newPacket = Packet(src_name, src_idx, send_time, True)
                                     # transmit jamming signal for 48 bit time
-                                    while (transmit_time < JAMMING_TIME):
+                                    while ((transmit_time < JAMMING_TIME) and (current_time < TOTAL_TICKS)):
                                         current_tick = GLOBAL_TICK
-                                        if current_tick != NODES_SRC_CLK_DICT[src_name]:
-                                            NODES_SRC_CLK_DICT[src_name] += 1
+                                        if current_tick < NODES_SRC_CLK_DICT[src_name]:
+                                            global NODES_SRC_CLK_DICT
+                                            NODES_SRC_CLK_DICT[src_name] = current_tick
                                             transmit_time += 1
                                     logging.info("[%s]: Collision Detected, going through binary exponential backoff"%\
                                             (threading.currentThread().getName()))
@@ -301,9 +314,7 @@ def transmit_worker():
                         NODES_SRC_TIME_DICT[src_name] = next_gen_time(current_tick)
                         logging.info("[%s]: next_gen at: %s" % (src_name, NODES_SRC_TIME_DICT[src_name]))
 
-            else:
-                #logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
-                NODES_SRC_IDLE_DICT[src_name] += 1
+    logging.info("[%s]: Im done.. bai" % src_name)
 
 # The schedule basically calculates randomly generated
 # times at which each node in the system would act as a transmitter.
@@ -340,11 +351,11 @@ def nerdystats():
 def tickTock():
     global GLOBAL_TICK
     GLOBAL_TICK = 0
-    while GLOBAL_TICK < TOTAL_TICKS:
+    while (GLOBAL_TICK < TOTAL_TICKS):
         # clock synchronization across all nodes
         all_updated = True
         for nodes in NODES_SRC_CLK_DICT:
-            if NODES_SRC_CLK_DICT[nodes] != GLOBAL_TICK:
+            if NODES_SRC_CLK_DICT[nodes] < GLOBAL_TICK:
                 all_updated = False
         if all_updated:
             GLOBAL_TICK += 1
@@ -358,9 +369,7 @@ def main(argv):
     # Start all the threads.
     [thread.start() for thread in sender_threads]
     tickTock()
-    [thread.join(timeout=10) for thread in sender_threads]
-    for thread in sender_threads:
-        print "thread = %s : %s" % (thread, thread.isAlive())
+    [thread.join() for thread in sender_threads]
     nerdystats()
 
 def init():
