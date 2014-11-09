@@ -80,16 +80,16 @@ class Packet:
         return (((max_index >= from_index) and (from_index > self.sender_index))
          or ((min_index <= from_index) and (from_index <= self.sender_index)))
 
-    def is_fully_transmitted(self):
+    def is_fully_transmitted(self, current_tick):
         """ Check if the packet is fully transmitted
         Note: this does not take into account of the propagation delay
         This only show that
         Keyword arguement:
         """
         if self.jamming:
-            return ((global_tick - self.send_time) >= JAMMING_TIME)
+            return ((current_tick - self.send_time) >= JAMMING_TIME)
         else:
-            return ((global_tick - seld.send_time) >= D_TRANS)
+            return ((current_tick - seld.send_time) >= D_TRANS)
 
 """
 Helper Functions
@@ -163,7 +163,7 @@ t = SENSE_MEDIUM_TIME, complete carrier sensing
 def medium_sensing_time(src_name, src_idx):
     global nodes_src_sense_dict
     # the node is not done medium sensing
-    if (nodes_src_sense_dict[src_name] < SENSE_MEDIUM_TIME):
+    if (nodes_src_sense_dict[src_name] <= SENSE_MEDIUM_TIME):
         if is_medium_busy(src_idx):
             nodes_src_sense_dict[src_name] = 0
         else:
@@ -207,7 +207,7 @@ def transmit_worker():
             if sensing_time == 0:
                 # 1 persistance
                 if P_PRAM == '1':
-                    logging.info("[%s]: Channel Busy, Restarting carrier sensing at next tick.." % (src_name))
+                    logging.debug("[%s]: Channel Busy, Restarting carrier sensing at next tick.." % (src_name))
                 # non persistance
                 elif P_PRAM == '2':
                     # update next transmit time with a random wait time
@@ -215,7 +215,7 @@ def transmit_worker():
                     if src_name in nodes_exp_backoff:
                         last_binary_exp = nodes_exp_backoff[src_name]['t_b']
                         nodes_src_time_dict[src_name] = random.random(0, last_binary_exp)
-                    logging.info("[%s]: Channel Busy, Restarting carrier sensing at tick %s.." %\
+                    logging.debug("[%s]: Channel Busy, Restarting carrier sensing at tick %s.." %\
                             (src_name, nodes_src_time_dict[src_name]))
                 # p persistance
                 else:
@@ -233,11 +233,11 @@ def transmit_worker():
                         else:
                             # will try to resend the packet after binary exponential backoff time
                             nodes_src_time_dict[src_name] = nodes_src_time_dict[src_name] + binary_backoff_time
-                        logging.info("[%s]: Channel Busy, Restarting carrier sensing at tick %s.." %\
+                        logging.debug("[%s]: Channel Busy, Restarting carrier sensing at tick %s.." %\
                             (src_name, nodes_src_time_dict[src_name]))
                     # first time sensing
                     else:
-                        logging.info("[%s]: Channel Busy, Restarting carrier sensing at next tick.." % (src_name))
+                        logging.debug("[%s]: Channel Busy, Restarting carrier sensing at next tick.." % (src_name))
 
             # medium is idle at this tick
             elif sensing_time < SENSE_MEDIUM_TIME:
@@ -248,12 +248,13 @@ def transmit_worker():
                 # node have transmitted packet with no collision
                 if newPacket in link_queue:
                     # lets move on in life
-                    if newPacket.is_fully_transmitted:
+                    if newPacket.is_fully_transmitted(current_tick):
                         logging.info("[%s] packet transmitted" % (src_name))
                         binary_backoff_time = 0
                         double_sensed = False
                         packet_transmitted += 1
                         nodes_exp_backoff.pop(src_name, None)
+                        nodes_src_sense_dict[src_name] = 0
                         nodes_src_time_dict[src_name] = next_gen_time(current_tick)
                         logging.info("[%s]: next_gen at: %s" % (src_name, nodes_src_time_dict[src_name]))
                     # still in transmission.. performing collision detection
@@ -311,8 +312,6 @@ def transmit_worker():
                             waitFor = next_gen_time(global_tick)
                             nodes_src_time_dict[src_name] = next_gen_time(current_tick)
 
-                    # transmit packet
-                    nodes_src_sense_dict[src_name] = 0
                     try:
                         link_queue.append(newPacket)
                     except Exception as e:
