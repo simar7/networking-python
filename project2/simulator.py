@@ -105,12 +105,12 @@ def dequeue_helper():
         if packet.jamming:
             if global_tick >= packet.send_time + packet_trans_dist + JAMMING_TIME:
                 link_queue.remove(packet)
-                logging.debug("[%s] Jamming signal from sender %s" %\
+                logging.info("[%s] Jamming signal from sender %s" %\
                         (dequeue_helper.__name__, packet.sender))
         else:
             if (global_tick >= packet.send_time + packet_trans_dist + D_TRANS):
                 link_queue.remove(packet)
-                logging.debug("[%s] Packet from sender %s" % (dequeue_helper.__name__, packet.sender))
+                logging.info("[%s] Packet from sender %s" % (dequeue_helper.__name__, packet.sender))
 
 def next_gen_time(current_tick):
     gen_number = random.random()
@@ -207,7 +207,7 @@ def transmit_worker():
             if sensing_time == 0:
                 # 1 persistance
                 if P_PRAM == '1':
-                    logging.debug("[%s]: Channel Busy, Restarting carrier sensing at next tick.." % (src_name))
+                    logging.info("[%s]: Channel Busy, Restarting carrier sensing at next tick.." % (src_name))
                 # non persistance
                 elif P_PRAM == '2':
                     # update next transmit time with a random wait time
@@ -215,7 +215,7 @@ def transmit_worker():
                     if src_name in nodes_exp_backoff:
                         last_binary_exp = nodes_exp_backoff[src_name]['t_b']
                         nodes_src_time_dict[src_name] = random.random(0, last_binary_exp)
-                    logging.debug("[%s]: Channel Busy, Restarting carrier sensing at tick %s.." %\
+                    logging.info("[%s]: Channel Busy, Restarting carrier sensing at tick %s.." %\
                             (src_name, nodes_src_time_dict[src_name]))
                 # p persistance
                 else:
@@ -233,23 +233,23 @@ def transmit_worker():
                         else:
                             # will try to resend the packet after binary exponential backoff time
                             nodes_src_time_dict[src_name] = nodes_src_time_dict[src_name] + binary_backoff_time
-                        logging.debug("[%s]: Channel Busy, Restarting carrier sensing at tick %s.." %\
+                        logging.info("[%s]: Channel Busy, Restarting carrier sensing at tick %s.." %\
                             (src_name, nodes_src_time_dict[src_name]))
                     # first time sensing
                     else:
-                        logging.debug("[%s]: Channel Busy, Restarting carrier sensing at next tick.." % (src_name))
+                        logging.info("[%s]: Channel Busy, Restarting carrier sensing at next tick.." % (src_name))
 
             # medium is idle at this tick
             elif sensing_time < SENSE_MEDIUM_TIME:
                 # Nothing to do
-                logging.debug("[%s]: Medium Sensing for %s ticks" % (src_name, sensing_time))
+                logging.info("[%s]: Medium Sensing for %s ticks" % (src_name, sensing_time))
             else:
-                logging.debug("[%s]: Medium Sensing completed, start to transmit" % (src_name))
+                logging.info("[%s]: Medium Sensing completed, start to transmit" % (src_name))
                 # node have transmitted packet with no collision
                 if newPacket in link_queue:
                     # lets move on in life
                     if newPacket.is_fully_transmitted:
-                        logging.debug("[%s] packet transmitted" % (src_name))
+                        logging.info("[%s] packet transmitted" % (src_name))
                         binary_backoff_time = 0
                         double_sensed = False
                         packet_transmitted += 1
@@ -265,14 +265,15 @@ def transmit_worker():
                                 # abort current transmission
                                 is_jammed = True
                                 try:
+                                    logging.info("[%s]: Abort Transmission" % (src_name))
                                     link_queue.remove(newpacket)
                                 except exception as e:
                                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
                                             (src_name, e.message))
                                 binary_backoff_time = 0
                                 nodes_src_time_dict[src_name] = next_gen_time(current_tick)
-                                logging.info("[%s]: signal jammed" % (src_name))
-                                logging.info("[%s]: next_gen at: %s" % (src_name, nodes_src_time_dict[src_name]))
+                                logging.info("[%s]: Signal jammed" % (src_name))
+                                logging.info("[%s]: Next_gen at: %s" % (src_name, nodes_src_time_dict[src_name]))
                             if not is_jammed:
                                 # collision detected
                                 collision_detected = is_medium_busy(src_idx)
@@ -379,7 +380,7 @@ def main(argv):
     nerdystats()
 
 def init():
-    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+    logging.basicConfig(stream=sys.stderr, level=logging.INFO)
     parser = argparse.ArgumentParser(description= \
             "CSMA/CA protocols")
 

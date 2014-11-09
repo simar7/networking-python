@@ -14,14 +14,14 @@ testList = []
 packetPerSecList = []
 numberOfNodesList = []
 
-lan_speed = 10000000
+lan_speed = 1000000
 pkt_len_in_bits = 12000
 # 1 = 1-Per; 2 = No-per; p(float) = p(float)-per
 p_pram_sanity = [0.1]
 p_pram = [2, 0.01, 0.1, 0.5, 0.6, 0.9, 1]
 p_pram_q5 = [0.01, 0.1, 0.3, 0.6, 1]
-ticklen = 1e-2
-totalticks = 1000
+ticklen = 1e-5
+totalticks = 10000
 whatWeNeed = None
 
 wittyErrorMsgs = ["You're a bad tester, go home.", \
@@ -63,7 +63,8 @@ def main(args):
     try:
         if args[1] == 'sanity':
             global packetPerSecList
-            packetPerSecList.append(5)
+            # NOTE: Increasing packet per sec for testing collision
+            packetPerSecList.append(500)
             global numberOfNodesList
             numberOfNodesList.append(5)
             global whatWeNeed
