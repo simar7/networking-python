@@ -110,7 +110,7 @@ def dequeue_helper():
                     link_queue.remove(newpacket)
                 except Exception as e:
                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
-                        (src_name, e.message))
+                        (dequeue_helper.__name__, e.message))
         else:
             if (global_tick >= packet.send_time + packet_trans_dist + D_TRANS):
                 try:
@@ -119,7 +119,7 @@ def dequeue_helper():
                     link_queue.remove(newpacket)
                 except Exception as e:
                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
-                        (src_name, e.message))
+                        (dequeue_helper.__name__, e.message))
 
 def next_gen_time(current_tick):
     gen_number = random.random()
