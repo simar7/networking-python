@@ -89,7 +89,7 @@ class Packet:
         if self.jamming:
             return ((current_tick - self.send_time) >= JAMMING_TIME)
         else:
-            return ((current_tick - seld.send_time) >= D_TRANS)
+            return ((current_tick - self.send_time) >= D_TRANS)
 
 """
 Helper Functions
@@ -142,7 +142,7 @@ def binary_backoff(src):
     #NOTE: this is the error state, the associated packet should be dropped
     if i > K_MAX:
         nodes_exp_backoff.pop(src_name, None)
-        return 0
+        return -1
     T_b = random.randint(0, math.pow(2, i) -1) * T_P
     nodes_exp_backoff[src] = {'i': i, 't_b': T_b}
     return T_b
@@ -187,7 +187,7 @@ def transmit_worker():
     global packet_dropped
     global packet_transmitted
     global packet_collided
-    binary_backoff_time = 0
+    binary_backoff_time = -1
     src_name = threading.currentThread().getName()
     send_time = nodes_src_time_dict[src_name]
     src_idx = math.ceil(NODES_SRC_LIST.index(src_name) * 10 / (ETHERNET_SPEED*TICK_DURATION))
@@ -208,8 +208,10 @@ def transmit_worker():
                 continue
 
             # generate a new packet after getting an error in binary exponential backoff
-            if (binary_backoff_time == 0):
+            if (binary_backoff_time == -1):
                 newPacket = Packet(src_name, src_idx, send_time)
+                # unset the error flag
+                binary_backoff_time = 0
 
             sensing_time = medium_sensing_time(src_name, src_idx)
             # medium is busy.. need to restart medium sensing
@@ -232,7 +234,7 @@ def transmit_worker():
                     if double_sensed:
                         # binary exponential backoff
                         binary_backoff_time = binary_backoff(src_name)
-                        if binary_backoff_time == 0:
+                        if binary_backoff_time == -1:
                             # generate a new packet at the next gen time
                             # reset the all single packet related data
                             # the binary_backoff_time will generate a new packet at line 192
@@ -255,11 +257,13 @@ def transmit_worker():
             else:
                 logging.info("[%s]: Medium Sensing completed, start to transmit" % (src_name))
                 # node have transmitted packet with no collision
+                print "=== [%s]: newPacket: %s" % (src_name, newPacket)
+                print "=== [%s]: link queue: %s" % (src_name, link_queue)
                 if newPacket in link_queue:
                     # lets move on in life
                     if newPacket.is_fully_transmitted(current_tick):
                         logging.info("[%s] packet transmitted" % (src_name))
-                        binary_backoff_time = 0
+                        binary_backoff_time = -1
                         double_sensed = False
                         packet_transmitted += 1
                         nodes_exp_backoff.pop(src_name, None)
@@ -280,7 +284,7 @@ def transmit_worker():
                                 except Exception as e:
                                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
                                             (src_name, e.message))
-                                binary_backoff_time = 0
+                                binary_backoff_time = -1
                                 nodes_src_time_dict[src_name] = next_gen_time(current_tick)
                                 logging.info("[%s]: Signal jammed" % (src_name))
                                 logging.info("[%s]: Next_gen at: %s" % (src_name, nodes_src_time_dict[src_name]))
@@ -309,7 +313,7 @@ def transmit_worker():
                                         packet_collided += 1
                                         # binary exponential backoff
                                         binary_backoff_time = binary_backoff(src_name)
-                                        if binary_backoff_time == 0:
+                                        if binary_backoff_time == -1:
                                             packet_dropped += 1
                                         else:
                                             nodes_src_time_dict[src_name] = nodes_src_time_dict[src_name] + binary_backoff_time
