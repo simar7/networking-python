@@ -104,13 +104,22 @@ def dequeue_helper():
         # jamming packet take 48 bit time to transmit + propagation delay
         if packet.jamming:
             if global_tick >= packet.send_time + packet_trans_dist + JAMMING_TIME:
-                link_queue.remove(packet)
-                logging.info("[%s] Jamming signal from sender %s" %\
+                try:
+                    logging.info("[%s] Jamming signal from sender %s" %\
                         (dequeue_helper.__name__, packet.sender))
+                    link_queue.remove(newpacket)
+                except Exception as e:
+                    logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
+                        (src_name, e.message))
         else:
             if (global_tick >= packet.send_time + packet_trans_dist + D_TRANS):
-                link_queue.remove(packet)
-                logging.info("[%s] Packet from sender %s" % (dequeue_helper.__name__, packet.sender))
+                try:
+                    logging.info("[%s] Packet from sender %s" %\
+                            (dequeue_helper.__name__, packet.sender))
+                    link_queue.remove(newpacket)
+                except Exception as e:
+                    logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
+                        (src_name, e.message))
 
 def next_gen_time(current_tick):
     gen_number = random.random()
@@ -268,7 +277,7 @@ def transmit_worker():
                                 try:
                                     logging.info("[%s]: Abort Transmission" % (src_name))
                                     link_queue.remove(newpacket)
-                                except exception as e:
+                                except Exception as e:
                                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
                                             (src_name, e.message))
                                 binary_backoff_time = 0
@@ -280,8 +289,13 @@ def transmit_worker():
                                 collision_detected = is_medium_busy(src_idx)
                                 if collision_detected:
                                     logging.info("[%s]: Collision Detected" % (src_name, current_tick))
-                                    # abort current transmission
-                                    link_queue.remove(newPacket)
+                                    try:
+                                        # abort current transmission
+                                        logging.info("[%s]: Abort Transmission" % (src_name))
+                                        link_queue.remove(newPacket)
+                                    except Exception as e:
+                                        logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
+                                            (src_name, e.message))
                                     # transmit jamming signal
                                     newPacket = Packet(src_name, src_idx, send_time, True)
                                     try:
@@ -309,7 +323,6 @@ def transmit_worker():
                         # defer packet
                         if prob >= float(P_PRAM):
                             double_sensed = True
-                            waitFor = next_gen_time(global_tick)
                             nodes_src_time_dict[src_name] = next_gen_time(current_tick)
 
                     try:
