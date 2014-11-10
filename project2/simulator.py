@@ -103,14 +103,14 @@ def dequeue_helper():
         packet_trans_dist = max(packet.sender_index, D_TOTAL_PROP - packet.sender_index)
         # jamming packet take 48 bit time to transmit + propagation delay
         if packet.jamming:
-            if global_tick >= packet.send_time + packet_trans_dist + JAMMING_TIME:
+            if (global_tick >= packet.send_time + packet_trans_dist + JAMMING_TIME):
                 try:
                     logging.info("[%s] Jamming signal from sender %s" %\
                         (dequeue_helper.__name__, packet.sender))
                     link_queue.remove(newpacket)
                 except Exception as e:
                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
-                        (src_name, e.message))
+                        (packet.sender, e.message))
         else:
             if (global_tick >= packet.send_time + packet_trans_dist + D_TRANS):
                 try:
@@ -119,7 +119,7 @@ def dequeue_helper():
                     link_queue.remove(newpacket)
                 except Exception as e:
                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
-                        (src_name, e.message))
+                        (packet.sender, e.message))
 
 def next_gen_time(current_tick):
     gen_number = random.random()
@@ -255,10 +255,7 @@ def transmit_worker():
                 # Nothing to do
                 logging.info("[%s]: Medium Sensing for %s ticks" % (src_name, sensing_time))
             else:
-                logging.info("[%s]: Medium Sensing completed, start to transmit" % (src_name))
                 # node have transmitted packet with no collision
-                print "=== [%s]: newPacket: %s" % (src_name, newPacket)
-                print "=== [%s]: link queue: %s" % (src_name, link_queue)
                 if newPacket in link_queue:
                     # lets move on in life
                     if newPacket.is_fully_transmitted(current_tick):
@@ -292,7 +289,7 @@ def transmit_worker():
                                 # collision detected
                                 collision_detected = is_medium_busy(src_idx)
                                 if collision_detected:
-                                    logging.info("[%s]: Collision Detected" % (src_name, current_tick))
+                                    logging.info("[%s]: Collision Detected at tick %s" % (src_name, current_tick))
                                     try:
                                         # abort current transmission
                                         logging.info("[%s]: Abort Transmission" % (src_name))
@@ -330,6 +327,7 @@ def transmit_worker():
                             nodes_src_time_dict[src_name] = next_gen_time(current_tick)
 
                     try:
+                        logging.info("[%s]: Medium Sensing completed, start to transmit" % (src_name))
                         link_queue.append(newPacket)
                     except Exception as e:
                         logging.error("[%s]: Exception was raised! msg: %s" % (src_name, e.message))
