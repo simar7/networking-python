@@ -64,11 +64,11 @@ def main(args):
         if args[1] == 'sanity':
             global packetPerSecList
             # NOTE: Increasing packet per sec for testing collision
-            packetPerSecList.append(500)
+            packetPerSecList.append(5000)
             global numberOfNodesList
             numberOfNodesList.append(5)
             global whatWeNeed
-            whatWeNeed = 'throughput'
+            whatWeNeed = 'both'
             global testlist
             testList.append('./simulator.py -N %s -A %s -W %s -L %s -P %s --tickLen %s -T %s --calc %s' %\
                     (numberOfNodesList[0], packetPerSecList[0], lan_speed, \

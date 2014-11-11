@@ -106,7 +106,7 @@ def dequeue_helper():
             if (global_tick >= packet.send_time + packet_trans_dist + JAMMING_TIME):
                 try:
                     link_queue.remove(packet)
-                    logging.info("[%s] Jamming signal from sender %s at time %s" %\
+                    logging.debug("[%s] Jamming signal from sender %s at time %s" %\
                         (dequeue_helper.__name__, packet.sender, global_tick))
                 except Exception as e:
                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
@@ -115,7 +115,7 @@ def dequeue_helper():
             if (global_tick >= packet.send_time + packet_trans_dist + D_TRANS):
                 try:
                     link_queue.remove(packet)
-                    logging.info("[%s] Packet from sender %s at time %s" %\
+                    logging.debug("[%s] Packet from sender %s at time %s" %\
                             (dequeue_helper.__name__, packet.sender, global_time))
                 except Exception as e:
                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
@@ -178,11 +178,11 @@ def medium_sensing_time(src_name, src_idx):
     if (nodes_src_sense_dict[src_name] <= SENSE_MEDIUM_TIME):
 
         if is_medium_busy(src_idx):
-            logging.info("[%s]: Sensed busy medium" % (src_name))
+            logging.debug("[%s]: Sensed busy medium" % (src_name))
             nodes_src_sense_dict[src_name] = 0
         else:
             # increment sensing time
-            logging.info("[%s]: Medium is not busy" % (src_name))
+            logging.debug("[%s]: Medium is not busy" % (src_name))
             nodes_src_sense_dict[src_name] += 1
     return nodes_src_sense_dict[src_name]
 
@@ -195,10 +195,10 @@ def transmit_worker():
     global packet_collided
     binary_backoff_time = -1
     src_name = threading.currentThread().getName()
-    logging.info("[%s] Thread name: %s" % (transmit_worker.__name__, src_name))
+    logging.debug("[%s] Thread name: %s" % (transmit_worker.__name__, src_name))
     send_time = nodes_src_time_dict[src_name]
     src_idx = math.ceil(NODES_SRC_LIST.index(src_name) * 10 / (ETHERNET_SPEED*TICK_DURATION))
-    logging.info("[%s] Thread index: %s" % (transmit_worker.__name__, src_idx))
+    logging.debug("[%s] Thread index: %s" % (transmit_worker.__name__, src_idx))
     newPacket = None
     current_tick = global_tick
     double_sensed = False
@@ -261,21 +261,21 @@ def transmit_worker():
             # medium is idle at this tick
             elif sensing_time < SENSE_MEDIUM_TIME:
                 # Nothing to do
-                logging.info("[%s]: Medium Sensing for %s ticks at tick %s" %\
+                logging.debug("[%s]: Medium Sensing for %s ticks at tick %s" %\
                         (src_name, sensing_time, current_tick))
             else:
                 # Packet is transmitting
                 if newPacket in link_queue:
                     # lets move on in life
                     if newPacket.is_fully_transmitted(current_tick):
-                        logging.info("[%s]: packet transmitted at tick %s" % (src_name, current_tick))
+                        logging.debug("[%s]: packet transmitted at tick %s" % (src_name, current_tick))
                         binary_backoff_time = -1
                         double_sensed = False
                         packet_transmitted += 1
                         nodes_exp_backoff.pop(src_name, None)
                         nodes_src_sense_dict[src_name] = 0
                         nodes_src_time_dict[src_name] = next_gen_time(current_tick)
-                        logging.info("[%s]: next_gen at: %s" % (src_name, nodes_src_time_dict[src_name]))
+                        logging.debug("[%s]: next_gen at: %s" % (src_name, nodes_src_time_dict[src_name]))
                     # still in transmission.. performing collision detection
                     else:
                         # jamming signal detection
@@ -286,7 +286,7 @@ def transmit_worker():
                                 is_jammed = True
                                 try:
                                     link_queue.remove(newPacket)
-                                    logging.info("[%s]: Abort Transmission at tick %s" %\
+                                    logging.debug("[%s]: Abort Transmission at tick %s" %\
                                             (src_name, current_tick))
                                 except Exception as e:
                                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
@@ -295,19 +295,19 @@ def transmit_worker():
                                     packet_dropped += 1
                                     binary_backoff_time = -1
                                     nodes_src_time_dict[src_name] = next_gen_time(current_tick)
-                                    logging.info("[%s]: Signal jammed at tick %s" % (src_name, current_tick))
-                                    logging.info("[%s]: Next_gen at: %s" %\
+                                    logging.debug("[%s]: Signal jammed at tick %s" % (src_name, current_tick))
+                                    logging.debug("[%s]: Next_gen at: %s" %\
                                             (src_name,nodes_src_time_dict[src_name]))
                             if not is_jammed:
                                 # collision detected
                                 collision_detected = is_medium_busy(src_idx)
                                 if collision_detected:
-                                    logging.info("[%s]: Collision Detected at tick %s" %\
+                                    logging.debug("[%s]: Collision Detected at tick %s" %\
                                             (src_name, current_tick))
                                     try:
                                         link_queue.remove(newPacket)
                                         # abort current transmission
-                                        logging.info("[%s]: Abort Transmission at tick %s" %\
+                                        logging.debug("[%s]: Abort Transmission at tick %s" %\
                                                 (src_name, current_tick))
                                     except Exception as e:
                                         logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
@@ -316,13 +316,13 @@ def transmit_worker():
                                     newPacket = Packet(src_name, src_idx, send_time, True)
                                     try:
                                         link_queue.append(newPacket)
-                                        logging.info("[%s]: Transmit jamming signali at tick %s" %\
+                                        logging.debug("[%s]: Transmit jamming signali at tick %s" %\
                                                 (src_name, current_tick))
                                     except Exception as e:
                                         logging.error("[%s]: Exception was raised! msg: %s" %\
                                                 (src_name, e.message))
                                     finally:
-                                        logging.info("[%s]: Start binary exponential backoff at tick %s"%\
+                                        logging.debug("[%s]: Start binary exponential backoff at tick %s"%\
                                                 (src_name, current_tick))
                                         packet_collided += 1
                                         # binary exponential backoff
@@ -344,13 +344,13 @@ def transmit_worker():
                             nodes_src_time_dict[src_name] = next_gen_time(current_tick)
 
                     try:
-                        logging.info("[%s]: Medium Sensing completed, start to transmit at tick %s" %\
+                        logging.debug("[%s]: Medium Sensing completed, start to transmit at tick %s" %\
                                 (src_name, current_tick))
                         link_queue.append(newPacket)
                     except Exception as e:
                         logging.error("[%s]: Exception was raised! msg: %s" % (src_name, e.message))
                     finally:
-                        logging.info("[%s]: Packet Generated at tick %s" % (src_name, current_tick))
+                        logging.debug("[%s]: Packet Generated at tick %s" % (src_name, current_tick))
 
     logging.info("[%s]: Im done.. bai" % src_name)
     return
@@ -363,7 +363,7 @@ def scheduler(sender_thread_list, current_tick):
     global nodes_src_time_dict
     for node in sender_thread_list:
         nodes_src_time_dict[node] = next_gen_time(current_tick)
-        logging.info("[%s]: next gen at: %s" % (node, nodes_src_time_dict[node]))
+        logging.debug("[%s]: next gen at: %s" % (node, nodes_src_time_dict[node]))
 
 def nerdystats():
     logging.info("[%s]: packets transmitted: %s" % (nerdystats.__name__, packet_transmitted))
@@ -399,7 +399,7 @@ def tickTock():
         if all_updated:
             global_tick += 1
             if (global_tick % 100 == 0):
-                raw_input("[%s]: current global tick at: %s \n" % (tickTock.__name__, global_tick))
+                logging.info("[%s]: current global tick at: %s \n" % (tickTock.__name__, global_tick))
             dequeue_helper()
 
 def main(argv):
