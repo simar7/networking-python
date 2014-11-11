@@ -77,13 +77,6 @@ class Packet:
         # how far did the signal propagate to on the larger index side
         max_index = self.sender_index + time_passed
         # determine if the packet is detected
-        if (from_index > self.sender_index):
-            if (max_index >= from_index):
-                print "current index is greater the maximum index"
-        else:
-            if (min_index <= from_index):
-                print "current index is greater the minimum index"
-
         return (((max_index >= from_index) and (from_index > self.sender_index))
          or ((min_index <= from_index) and (from_index <= self.sender_index)))
 
@@ -148,7 +141,7 @@ def binary_backoff(src):
     i += 1
     #NOTE: this is the error state, the associated packet should be dropped
     if i > K_MAX:
-        nodes_exp_backoff.pop(src_name, None)
+        nodes_exp_backoff.pop(src, None)
         return -1
     T_b = random.randint(0, math.pow(2, i) -1) * T_P
     nodes_exp_backoff[src] = {'i': i, 't_b': T_b}
@@ -183,6 +176,7 @@ def medium_sensing_time(src_name, src_idx):
     global nodes_src_sense_dict
     # the node is not done medium sensing
     if (nodes_src_sense_dict[src_name] <= SENSE_MEDIUM_TIME):
+
         if is_medium_busy(src_idx):
             logging.info("[%s]: Sensed busy medium" % (src_name))
             nodes_src_sense_dict[src_name] = 0
