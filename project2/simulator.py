@@ -399,7 +399,7 @@ def tickTock():
         if all_updated:
             global_tick += 1
             if (global_tick % 100 == 0):
-                raw_input("[%s]: current global tick at: %s \n" % (tickTock.__name__, global_tick))
+                logging.info("[%s]: current global tick at: %s \n" % (tickTock.__name__, global_tick))
             dequeue_helper()
 
 def main(argv):
