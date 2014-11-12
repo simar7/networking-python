@@ -157,12 +157,12 @@ def is_right_time(inputThread):
 
 # return true when the node detects any signal from other sources
 # medium is either busy or theres an collision
-def is_medium_busy(from_index):
+def is_medium_busy(src_name,from_index):
     for packet in link_queue:
-        if packet.sender_index != from_index:
-            logging.info("==== is packet from %s detected: %s" %\
-                (packet.sender, packet.is_detected(from_index, global_tick)))
+        if packet.sender != src_name:
             if packet.is_detected(from_index, global_tick):
+                logging.info("[%s] Packet from %s detected: %s" %\
+                    (is_medium_busy.__name__, packet.sender, packet.is_detected(from_index, global_tick)))
                 return True
     return False
 
@@ -177,7 +177,7 @@ def medium_sensing_time(src_name, src_idx):
     # the node is not done medium sensing
     if (nodes_src_sense_dict[src_name] <= SENSE_MEDIUM_TIME):
 
-        if is_medium_busy(src_idx):
+        if is_medium_busy(src_name, src_idx):
             logging.info("[%s]: Sensed busy medium" % (src_name))
             nodes_src_sense_dict[src_name] = 0
         else:
@@ -300,7 +300,7 @@ def transmit_worker():
                                             (src_name,nodes_src_time_dict[src_name]))
                             if not is_jammed:
                                 # collision detected
-                                collision_detected = is_medium_busy(src_idx)
+                                collision_detected = is_medium_busy(src_name, src_idx)
                                 if collision_detected:
                                     logging.info("[%s]: Collision Detected at tick %s" %\
                                             (src_name, current_tick))
@@ -398,8 +398,6 @@ def tickTock():
 
         if all_updated:
             global_tick += 1
-            if (global_tick % 100 == 0):
-                raw_input("[%s]: current global tick at: %s \n" % (tickTock.__name__, global_tick))
             dequeue_helper()
 
 def main(argv):

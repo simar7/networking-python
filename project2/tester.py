@@ -66,7 +66,7 @@ def main(args):
             # NOTE: Increasing packet per sec for testing collision
             packetPerSecList.append(500)
             global numberOfNodesList
-            numberOfNodesList.append(5)
+            numberOfNodesList.append(20)
             global whatWeNeed
             whatWeNeed = 'throughput'
             global testlist
