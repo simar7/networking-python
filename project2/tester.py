@@ -7,6 +7,8 @@
 
 '''
 import sys
+import datetime, time
+from time import strftime
 import random
 import subprocess
 
@@ -17,12 +19,11 @@ numberOfNodesList = []
 lan_speed = 1000000
 pkt_len_in_bits = 12000
 # 1 = 1-Per; 2 = No-per; p(float) = p(float)-per
-p_pram_sanity = [0.1]
+p_pram_sanity = [1]
 p_pram = [2, 0.01, 0.1, 0.5, 0.6, 0.9, 1]
 p_pram_q5 = [0.01, 0.1, 0.3, 0.6, 1]
-ticklen = 1e-3
-totalticks = 10000
-#totalticks = int(1e6)
+ticklen = 1e-6
+totalticks = int(1e7)
 whatWeNeed = None
 
 wittyErrorMsgs = ["You're a bad tester, go home.", \
@@ -37,7 +38,7 @@ wittyErrorMsgs = ["You're a bad tester, go home.", \
 def makeTests():
     for nodeCount in numberOfNodesList:
         for avgPackets in packetPerSecList:
-            for perElem in p_pram:
+            for perElem in xrange(0, len(p_pram)):
                 global testList
                 testList.append('./simulator.py -N %s -A %s -W %s -L %s -P %s --tickLen %s -T %s --calc %s' %\
                         (nodeCount, avgPackets, lan_speed, pkt_len_in_bits, str(p_pram[perElem]), ticklen, totalticks, whatWeNeed))
@@ -52,10 +53,14 @@ def makeTests_Q5(nodeCount):
 def runTests():
     print "[%s]: Brace yourself, running tests now..." % (runTests.__name__)
     try:
-        for test in testList:
-            print "[%s]: Currently running: %s" % (runTests.__name__, test)
-            process = subprocess.Popen(test, shell=True)
-            process.wait()
+        cur_sys_time = strftime("%H:%M:%S:%MS", time.localtime())
+        with open("%s.log" % cur_sys_time, "a+") as logFile:
+            for test in testList:
+                print >>logFile, ("[%s]: Currently running: %s\n" % (runTests.__name__, test))
+                logFile.flush()
+                process = subprocess.Popen(test, shell=True, stdout=logFile, stderr=logFile)
+                process.wait()
+                logFile.flush()
     except Exception as e:
         print "Computer> %s \nComputer>  ret_msg: %s | ret_code: %s" % \
                 (wittyErrorMsgs[random.randint(0, len(wittyErrorMsgs)-1)], e.message, process.returncode)
@@ -80,7 +85,7 @@ def main(args):
                 numberOfNodesList.append(nodeCount)
             for avgPackets in [5, 6, 7]:
                 packetPerSecList.append(avgPackets)
-            whatWeNeed = 'throughput'
+            whatWeNeed = 'both'
             makeTests()
 
         elif args[1] == 'q2':
@@ -88,7 +93,7 @@ def main(args):
                 numberOfNodesList.append(nodeCount)
             for avgPackets in [4, 24, 4]:
                 packetPerSecList.append(avgPackets)
-            whatWeNeed = 'throughput'
+            whatWeNeed = 'both'
             makeTests()
 
         elif args[1] == 'q3':
@@ -96,7 +101,7 @@ def main(args):
                 numberOfNodesList.append(nodeCount)
             for avgPackets in [5, 6, 7]:
                 packetPerSecList.append(avgPackets)
-            whatWeNeed = 'avgDelay'
+            whatWeNeed = 'both'
             makeTests()
 
         elif args[1] == 'q4':
@@ -104,7 +109,7 @@ def main(args):
                 numberOfNodesList.append(nodeCount)
             for avgPackets in [4, 24, 4]:
                 packetPerSecList.append(avgPackets)
-            whatWeNeed = 'avgDelay'
+            whatWeNeed = 'both'
             makeTests()
 
         elif args[1] == 'q5':

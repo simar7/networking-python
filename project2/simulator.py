@@ -49,8 +49,8 @@ packet_dropped      = 0
 packet_transmitted  = 0
 packet_collided     = 0
 CALC = None
-throughput = 0
-avgDelay = 0
+throughput = 0.0
+avgDelay = 0.0
 
 """
 Useful Object
@@ -377,10 +377,13 @@ def nerdystats():
     logging.info("[%s]: packets transmitted: %s" % (nerdystats.__name__, packet_transmitted))
     logging.info("[%s]: packets collided   : %s" % (nerdystats.__name__, packet_collided))
     logging.info("[%s]: packets dropped    : %s" % (nerdystats.__name__, packet_dropped))
-    logging.info("[%s]: len of link_queue    : %s" % (nerdystats.__name__, len(link_queue)))
+    logging.info("[%s]: len of link_queue  : %s" % (nerdystats.__name__, len(link_queue)))
+
+    global throughput
+    throughput =  packet_transmitted / TOTAL_TIME
 
     for node in NODES_SRC_LIST:
-        logging.debug("[%s]: Node #%s had idle time: %s ticks of fun time." %\
+        logging.info("[%s]: Node #%s had idle time: %s ticks of fun time." %\
                 (nerdystats.__name__, node, nodes_src_idle_dict[node]))
 
     if CALC == 'throughput':
