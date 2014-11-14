@@ -50,8 +50,8 @@ packet_transmitted  = 0
 packet_collided     = 0
 CALC                = None
 throughput          = 0
-total_delay         = 0
-avgDelay            = 0
+total_delay         = 0.0
+avgDelay            = 0.0
 """
 Useful Object
 """
@@ -266,7 +266,6 @@ def transmit_worker():
                     if src_name in nodes_exp_backoff:
                         binary_exp = nodes_exp_backoff.pop(src_name)
                         last_binary_exp = binary_exp['t_b']
-                        logging.info("=== [%s] retry: %s" % (src_name, binary_exp['i']))
                     nodes_src_sense_dict[src_name] = 0
                 # still in transmission.. performing collision detection
                 else:
@@ -410,10 +409,13 @@ def nerdystats():
     logging.info("[%s]: packets transmitted: %s" % (nerdystats.__name__, packet_transmitted))
     logging.info("[%s]: packets collided   : %s" % (nerdystats.__name__, packet_collided))
     logging.info("[%s]: packets dropped    : %s" % (nerdystats.__name__, packet_dropped))
-    logging.info("[%s]: len of link_queue    : %s" % (nerdystats.__name__, len(link_queue)))
+    logging.info("[%s]: len of link_queue  : %s" % (nerdystats.__name__, len(link_queue)))
+
+    global throughput
+    throughput =  packet_transmitted / TOTAL_TIME
 
     for node in NODES_SRC_LIST:
-        logging.debug("[%s]: Node #%s had idle time: %s ticks of fun time." %\
+        logging.info("[%s]: Node #%s had idle time: %s ticks of fun time." %\
                 (nerdystats.__name__, node, nodes_src_idle_dict[node]))
 
     avgDealy = total_delay / packet_transmitted
