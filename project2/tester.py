@@ -22,6 +22,7 @@ p_pram = [2, 0.01, 0.1, 0.5, 0.6, 0.9, 1]
 p_pram_q5 = [0.01, 0.1, 0.3, 0.6, 1]
 ticklen = 1e-3
 totalticks = 10000
+#totalticks = int(1e6)
 whatWeNeed = None
 
 wittyErrorMsgs = ["You're a bad tester, go home.", \
@@ -64,9 +65,9 @@ def main(args):
         if args[1] == 'sanity':
             global packetPerSecList
             # NOTE: Increasing packet per sec for testing collision
-            packetPerSecList.append(500)
+            packetPerSecList.append(100)
             global numberOfNodesList
-            numberOfNodesList.append(5)
+            numberOfNodesList.append(3)
             global whatWeNeed
             whatWeNeed = 'throughput'
             global testlist
