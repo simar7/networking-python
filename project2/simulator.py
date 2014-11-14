@@ -418,7 +418,7 @@ def nerdystats():
         logging.info("[%s]: Node #%s had idle time: %s ticks of fun time." %\
                 (nerdystats.__name__, node, nodes_src_idle_dict[node]))
 
-    avgDealy = (total_delay*TICK_DURATION) / packet_transmitted
+    avgDelay = (total_delay*TICK_DURATION) / packet_transmitted
     
     if CALC == 'throughput':
         logging.info("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
