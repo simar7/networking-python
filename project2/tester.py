@@ -17,7 +17,7 @@ numberOfNodesList = []
 lan_speed = 1000000
 pkt_len_in_bits = 12000
 # 1 = 1-Per; 2 = No-per; p(float) = p(float)-per
-p_pram_sanity = [0.1]
+p_pram_sanity = [1]
 p_pram = [2, 0.01, 0.1, 0.5, 0.6, 0.9, 1]
 p_pram_q5 = [0.01, 0.1, 0.3, 0.6, 1]
 ticklen = 1e-3
