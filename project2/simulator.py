@@ -203,7 +203,7 @@ def transmit_worker():
     src_idx = math.ceil(NODES_SRC_LIST.index(src_name) * 10 / (ETHERNET_SPEED*TICK_DURATION))
     newPacket = None
     jamming_signal = None
-    send_time = 0
+    send_time = nodes_src_time_dict[src_name]
     current_tick = global_tick
     last_binary_exp = 0
     double_sensed = False
@@ -219,10 +219,11 @@ def transmit_worker():
             nodes_src_clk_dict[src_name] = current_tick
 
             if is_right_time(src_name):
-                 nodes_src_time_dict[src_name] = next_gen_time(current_tick)
-                 tmp_packet = Packet(src_name, src_idx, current_tick)
-                 node_queue.append(tmp_packet)
-                 logging.debug("[%s] new packet generated at tick %s" % (src_name, tmp_packet.gen_time))
+                # find next generation time
+                nodes_src_time_dict[src_name] = next_gen_time(current_tick)
+                tmp_packet = Packet(src_name, src_idx, current_tick)
+                node_queue.append(tmp_packet)
+                logging.debug("[%s] new packet generated at tick %s" % (src_name, tmp_packet.gen_time))
             else:
                 logging.debug("[%s]: It's not the right time for me to generate, so I'm gonna chill." % src_name)
                 nodes_src_idle_dict[src_name] += 1
@@ -401,10 +402,18 @@ def transmit_worker():
 # This assigns an initial order in which the nodes should be acting as transmitters
 # each time a node tranmits, it request for the next_gen_time()
 def scheduler(sender_thread_list, current_tick):
+    min_time = TOTAL_TICKS
     global nodes_src_time_dict
     for node in sender_thread_list:
-        nodes_src_time_dict[node] = next_gen_time(current_tick)
+        gen_time = next_gen_time(current_tick)
+        nodes_src_time_dict[node] = gen_time
+        min_time = min(min_time, gen_time)
         logging.info("[%s]: next gen at: %s" % (node, nodes_src_time_dict[node]))
+
+    min_time -= 10
+    for time in nodes_src_clk_dict:
+        nodes_src_clk_dict[time] = min_time
+
 
 def nerdystats():
     logging.info("[%s]: packets transmitted: %s" % (nerdystats.__name__, packet_transmitted))
