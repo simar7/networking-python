@@ -108,7 +108,7 @@ def dequeue_helper():
             if (global_tick > packet.send_time + packet_trans_dist + JAMMING_TIME):
                 try:
                     link_queue.remove(packet)
-                    logging.info("[%s] Jamming signal from sender %s at time %s" %\
+                    logging.debug("[%s] Jamming signal from sender %s at time %s" %\
                         (dequeue_helper.__name__, packet.sender, global_tick))
                 except Exception as e:
                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
@@ -117,7 +117,7 @@ def dequeue_helper():
             if (global_tick >= packet.send_time + packet_trans_dist + D_TRANS):
                 try:
                     link_queue.remove(packet)
-                    logging.info("[%s] Packet from sender %s at time %s" %\
+                    logging.debug("[%s] Packet from sender %s at time %s" %\
                             (dequeue_helper.__name__, packet.sender, global_time))
                     total_delay += (global_tick - packet.send_time)
                 except Exception as e:
@@ -221,7 +221,7 @@ def transmit_worker():
                  nodes_src_time_dict[src_name] = next_gen_time(current_tick)
                  tmp_packet = Packet(src_name, src_idx, current_tick)
                  node_queue.append(tmp_packet)
-                 logging.info("[%s] new packet generated at tick %s" % (src_name, tmp_packet.gen_time))
+                 logging.debug("[%s] new packet generated at tick %s" % (src_name, tmp_packet.gen_time))
             else:
                 logging.debug("[%s]: It's not the right time for me to generate, so I'm gonna chill." % src_name)
                 nodes_src_idle_dict[src_name] += 1
@@ -248,7 +248,7 @@ def transmit_worker():
                 # lets move on in life
                 ret = newPacket.is_fully_transmitted(current_tick)
                 if ret:
-                    logging.info("[%s]: ret = %s" % (src_name, ret))
+                    logging.debug("[%s]: ret = %s" % (src_name, ret))
                     if newPacket.jamming:
                         # binary exponential backoff
                         logging.info("[%s]: jamming signal finished" % (src_name))
@@ -269,7 +269,7 @@ def transmit_worker():
                     nodes_src_sense_dict[src_name] = 0
                 # still in transmission.. performing collision detection
                 else:
-                    logging.info("[%s]: still in tx" % src_name)
+                    logging.debug("[%s]: still in tx" % src_name)
                     # jamming signal detection
                     is_jammed = False
                     for packet in link_queue:
@@ -296,13 +296,13 @@ def transmit_worker():
                                     send_time = current_tick + binary_backoff_time
                                 binary_backoff_time = -1
                                 nodes_src_sense_dict[src_name] = 0
-                                logging.info("[%s]: Jamming signal caused next_gen at: %s" %\
+                                logging.debug("[%s]: Jamming signal caused next_gen at: %s" %\
                                         (src_name,nodes_src_time_dict[src_name]))
                     if not is_jammed:
                         # collision detected
                         collision_detected = is_medium_busy(src_name, src_idx)
                         if collision_detected:
-                            logging.info("[%s]: Collision Detected at tick %s" %\
+                            logging.debug("[%s]: Collision Detected at tick %s" %\
                                     (src_name, current_tick))
                             try:
                                 nodes_src_sense_dict[src_name] = 0
@@ -390,7 +390,7 @@ def transmit_worker():
                         except Exception as e:
                             logging.error("[%s]: Exception was raised! msg: %s" % (src_name, e.message))
                         finally:
-                            logging.info("[%s]: Packet Generated at tick %s" % (src_name, current_tick))
+                            logging.info("[%s]: Packet start txing at tick %s" % (src_name, current_tick))
 
     logging.info("[%s]: Im done.. bai" % src_name)
     return
@@ -418,7 +418,8 @@ def nerdystats():
         logging.info("[%s]: Node #%s had idle time: %s ticks of fun time." %\
                 (nerdystats.__name__, node, nodes_src_idle_dict[node]))
 
-    avgDealy = total_delay / packet_transmitted
+    avgDealy = (total_delay*TICK_DURATION) / packet_transmitted
+    
     if CALC == 'throughput':
         logging.info("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
         logging.debug("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
@@ -443,7 +444,7 @@ def tickTock():
 
         if all_updated:
             global_tick += 1
-            if (global_tick % 100 == 0):
+            if (global_tick % 10000 == 0):
                 logging.info("[%s]: current global tick at: %s \n" % (tickTock.__name__, global_tick))
             dequeue_helper()
 
