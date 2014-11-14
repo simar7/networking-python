@@ -90,8 +90,9 @@ class Packet:
         if self.jamming:
             return ((current_tick - self.send_time) >= JAMMING_TIME)
         else:
-            logging.info("[%s]: current_tick: %s | send_time: %s | D_TRANS: %s" % ("is_fully_transmitted", current_tick, self.send_time, D_TRANS))
-            return ((current_tick - self.send_time) >= D_TRANS)
+            if current_tick % 10000 == 0:
+                logging.info("[%s]: current_tick: %s | send_time: %s | D_TRANS: %s" % ("is_fully_transmitted", current_tick, self.send_time, D_TRANS))
+                return ((current_tick - self.send_time) >= D_TRANS)
 
 """
 Helper Functions
@@ -175,17 +176,17 @@ t = 0, the medium is busy
 0 < t < SENSE_MEDIUM_TIME, sensing carrier and medium is idle for t ticks
 t = SENSE_MEDIUM_TIME, complete carrier sensing
 """
-def medium_sensing_time(src_name, src_idx):
+def medium_sensing_time(current_tick, src_name, src_idx):
     global nodes_src_sense_dict
     # the node is not done medium sensing
     if (nodes_src_sense_dict[src_name] <= SENSE_MEDIUM_TIME):
 
         if is_medium_busy(src_name, src_idx):
-            logging.debug("[%s]: Sensed busy medium" % (src_name))
+            logging.debug("[%s]: Sensed busy medium at: %s" % (src_name, current_tick))
             nodes_src_sense_dict[src_name] = 0
         else:
             # increment sensing time
-            logging.info("[%s]: Medium is not busy" % (src_name))
+            logging.info("[%s]: Medium is not busy at: %s" % (src_name, current_tick))
             nodes_src_sense_dict[src_name] += 1
     return nodes_src_sense_dict[src_name]
 
@@ -329,7 +330,7 @@ def transmit_worker():
                                 packet_collided += 1
 
             else:
-                sensing_time = medium_sensing_time(src_name, src_idx)
+                sensing_time = medium_sensing_time(current_tick, src_name, src_idx)
                 # medium is busy.. need to restart medium sensing
                 if sensing_time == 0:
                     # 1 persistance
@@ -419,7 +420,7 @@ def nerdystats():
                 (nerdystats.__name__, node, nodes_src_idle_dict[node]))
 
     avgDelay = (total_delay*TICK_DURATION) / packet_transmitted
-    
+
     if CALC == 'throughput':
         logging.info("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
         logging.debug("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
