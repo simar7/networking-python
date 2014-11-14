@@ -77,7 +77,7 @@ class Packet:
         # how far did the signal propagate to on the larger index side
         max_index = self.sender_index + time_passed
         # determine if the packet is detected
-        return (((max_index >= from_index) and (from_index > self.sender_index))
+        return (((max_index >= from_index) and (from_index >= self.sender_index))
          or ((min_index <= from_index) and (from_index <= self.sender_index)))
 
     def is_fully_transmitted(self, current_tick):
@@ -89,6 +89,7 @@ class Packet:
         if self.jamming:
             return ((current_tick - self.send_time) >= JAMMING_TIME)
         else:
+            logging.info("[%s]: current_tick: %s | send_time: %s | D_TRANS: %s" % ("is_fully_transmitted", current_tick, self.send_time, D_TRANS))
             return ((current_tick - self.send_time) >= D_TRANS)
 
 """
@@ -103,7 +104,7 @@ def dequeue_helper():
         packet_trans_dist = max(packet.sender_index, D_TOTAL_PROP - packet.sender_index)
         # jamming packet take 48 bit time to transmit + propagation delay
         if packet.jamming:
-            if (global_tick >= packet.send_time + packet_trans_dist + JAMMING_TIME):
+            if (global_tick > packet.send_time + packet_trans_dist + JAMMING_TIME):
                 try:
                     link_queue.remove(packet)
                     logging.info("[%s] Jamming signal from sender %s at time %s" %\
@@ -209,7 +210,8 @@ def transmit_worker():
             nodes_src_clk_dict[src_name] = current_tick
 
             if not is_right_time(src_name):
-                logging.debug("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
+                if newPacket in link_queue:
+                    logging.info("[%s]: It's not the right time for me to transmit, so I'm gonna chill." % src_name)
                 nodes_src_idle_dict[src_name] += 1
                 continue
 
@@ -222,17 +224,30 @@ def transmit_worker():
 
             if newPacket in link_queue:
                 # lets move on in life
-                if newPacket.is_fully_transmitted(current_tick):
-                    logging.info("[%s]: packet transmitted at tick %s" % (src_name, current_tick))
+                ret = newPacket.is_fully_transmitted(current_tick)
+                if ret:
+                    logging.info("[%s]: ret = %s" % (src_name, ret))
+                    if newPacket.jamming:
+                        # binary exponential backoff
+                        logging.info("[%s]: jamming signal finished" % (src_name))
+                        binary_backoff_time = binary_backoff(src_name)
+                        if binary_backoff_time == -1:
+                            packet_dropped += 1
+                            nodes_src_time_dict[src_name] = next_gen_time(current_tick)
+                        else:
+                            logging.info("[%s]: Start binary exponential backoff at tick %s"% (src_name, current_tick))
+                            nodes_src_time_dict[src_name] = current_tick + binary_backoff_time
+                    else:
+                        nodes_src_time_dict[src_name] = next_gen_time(current_tick)
+                        logging.info("[%s]: packet finished at tick %s" % (src_name, current_tick))
                     binary_backoff_time = -1
                     double_sensed = False
                     packet_transmitted += 1
                     nodes_exp_backoff.pop(src_name, None)
                     nodes_src_sense_dict[src_name] = 0
-                    nodes_src_time_dict[src_name] = next_gen_time(current_tick)
-                    logging.info("[%s]: next_gen at: %s" % (src_name, nodes_src_time_dict[src_name]))
                 # still in transmission.. performing collision detection
                 else:
+                    logging.info("[%s]: still in tx" % src_name)
                     # jamming signal detection
                     is_jammed = False
                     for packet in link_queue:
@@ -249,43 +264,37 @@ def transmit_worker():
                             finally:
                                 packet_dropped += 1
                                 binary_backoff_time = -1
+                                nodes_src_sense_dict[src_name] = 0
                                 nodes_src_time_dict[src_name] = next_gen_time(current_tick)
                                 logging.info("[%s]: Signal jammed at tick %s" % (src_name, current_tick))
-                                logging.info("[%s]: Next_gen at: %s" %\
+                                logging.info("[%s]: Jamming signal caused next_gen at: %s" %\
                                         (src_name,nodes_src_time_dict[src_name]))
-                        if not is_jammed:
-                            # collision detected
-                            collision_detected = is_medium_busy(src_name, src_idx)
-                            if collision_detected:
-                                logging.info("[%s]: Collision Detected at tick %s" %\
+                    if not is_jammed:
+                        # collision detected
+                        collision_detected = is_medium_busy(src_name, src_idx)
+                        if collision_detected:
+                            logging.info("[%s]: Collision Detected at tick %s" %\
+                                    (src_name, current_tick))
+                            try:
+                                nodes_src_sense_dict[src_name] = 0
+                                link_queue.remove(newPacket)
+                                # abort current transmission
+                                logging.info("[%s]: Abort Transmission at tick %s" %\
                                         (src_name, current_tick))
-                                try:
-                                    link_queue.remove(newPacket)
-                                    # abort current transmission
-                                    logging.info("[%s]: Abort Transmission at tick %s" %\
-                                            (src_name, current_tick))
-                                except Exception as e:
-                                    logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
+                            except Exception as e:
+                                logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
+                                    (src_name, e.message))
+                            # transmit jamming signal
+                            newPacket = Packet(src_name, src_idx, current_tick, True)
+                            try:
+                                link_queue.append(newPacket)
+                                logging.info("[%s]: Transmit jamming signali at tick %s" %\
+                                        (src_name, current_tick))
+                            except Exception as e:
+                                logging.error("[%s]: Exception was raised! msg: %s" %\
                                         (src_name, e.message))
-                                # transmit jamming signal
-                                newPacket = Packet(src_name, src_idx, send_time, True)
-                                try:
-                                    link_queue.append(newPacket)
-                                    logging.info("[%s]: Transmit jamming signali at tick %s" %\
-                                            (src_name, current_tick))
-                                except Exception as e:
-                                    logging.error("[%s]: Exception was raised! msg: %s" %\
-                                            (src_name, e.message))
-                                finally:
-                                    logging.info("[%s]: Start binary exponential backoff at tick %s"%\
-                                            (src_name, current_tick))
-                                    packet_collided += 1
-                                    # binary exponential backoff
-                                    binary_backoff_time = binary_backoff(src_name)
-                                    if binary_backoff_time == -1:
-                                        packet_dropped += 1
-                                    else:
-                                        nodes_src_time_dict[src_name] = nodes_src_time_dict[src_name] + binary_backoff_time
+                            finally:
+                                packet_collided += 1
 
             else:
                 sensing_time = medium_sensing_time(src_name, src_idx)
@@ -340,14 +349,16 @@ def transmit_worker():
                             nodes_src_time_dict[src_name] = next_gen_time(current_tick)
 
                     # transmitted packet
-                    try:
-                        logging.info("[%s]: Medium Sensing completed, start to transmit at tick %s" %\
-                                (src_name, current_tick))
-                        link_queue.append(newPacket)
-                    except Exception as e:
-                        logging.error("[%s]: Exception was raised! msg: %s" % (src_name, e.message))
-                    finally:
-                        logging.info("[%s]: Packet Generated at tick %s" % (src_name, current_tick))
+                    if nodes_src_time_dict[src_name] <= current_tick:
+                        try:
+                            logging.info("[%s]: Medium Sensing completed, start to transmit at tick %s" %\
+                                    (src_name, current_tick))
+                            newPacket.send_time = current_tick
+                            link_queue.append(newPacket)
+                        except Exception as e:
+                            logging.error("[%s]: Exception was raised! msg: %s" % (src_name, e.message))
+                        finally:
+                            logging.info("[%s]: Packet Generated at tick %s" % (src_name, current_tick))
 
     logging.info("[%s]: Im done.. bai" % src_name)
     return
@@ -366,6 +377,7 @@ def nerdystats():
     logging.info("[%s]: packets transmitted: %s" % (nerdystats.__name__, packet_transmitted))
     logging.info("[%s]: packets collided   : %s" % (nerdystats.__name__, packet_collided))
     logging.info("[%s]: packets dropped    : %s" % (nerdystats.__name__, packet_dropped))
+    logging.info("[%s]: len of link_queue    : %s" % (nerdystats.__name__, len(link_queue)))
 
     for node in NODES_SRC_LIST:
         logging.debug("[%s]: Node #%s had idle time: %s ticks of fun time." %\
@@ -395,8 +407,11 @@ def tickTock():
 
         if all_updated:
             global_tick += 1
+            logging.info("[%s] Tick %s" % (tickTock.__name__, global_tick))
+            '''
             if global_tick % 1000 == 0:
                 logging.info("[%s] Tick %s" % (tickTock.__name__, global_tick))
+            '''
             dequeue_helper()
 
 def main(argv):
