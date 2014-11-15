@@ -439,8 +439,8 @@ def nerdystats():
         logging.info("[%s]:  Average Delay : %s" % (nerdystats.__name__, avgDelay))
         logging.debug("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
     if CALC == 'both':
-        logging.info("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
-        logging.info("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
+        logging.info("[%s]: Average Delay : %s(sec)" % (nerdystats.__name__, avgDelay))
+        logging.info("[%s]: Throughput    : %s(pkt/sec)" % (nerdystats.__name__, throughput))
     else:
         logging.error("[%s]: Invalid Calculation parameter" % (nerdystats.__name__))
 
