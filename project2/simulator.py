@@ -195,7 +195,7 @@ def medium_sensing_time(current_tick, src_name, src_idx):
             nodes_src_sense_dict[src_name] = 0
         else:
             # increment sensing time
-            logging.info("[%s]: Medium is not busy at: %s" % (src_name, current_tick))
+            logging.debug("[%s]: Medium is not busy at: %s" % (src_name, current_tick))
             nodes_src_sense_dict[src_name] += 1
     return nodes_src_sense_dict[src_name]
 
@@ -231,7 +231,7 @@ def node(node):
             # unset the error flag
             nodes_beb_count[node] = 0
             nodes_send_time[node] = packet_in_transit[node].gen_time
-            logging.info("[%s] packet generated at tick %s is now ready to send" % (node, packet_in_transit[node].gen_time))
+            logging.debug("[%s] packet generated at tick %s is now ready to send" % (node, packet_in_transit[node].gen_time))
         else:
             return
 

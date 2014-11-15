@@ -20,11 +20,11 @@ numberOfNodesList = []
 lan_speed = 1000000
 pkt_len_in_bits = 12000
 # 1 = 1-Per; 2 = No-per; p(float) = p(float)-per
-p_pram_sanity = [1]
+p_pram_sanity = [2]
 p_pram = [2, 0.01, 0.1, 0.5, 0.6, 0.9, 1]
 p_pram_q5 = [0.01, 0.1, 0.3, 0.6, 1]
-ticklen = 1e-3
-totalticks = int(1e4)
+ticklen = 1e-5
+totalticks = int(1e6)
 whatWeNeed = None
 
 wittyErrorMsgs = ["You're a bad tester, go home.", \
@@ -37,6 +37,7 @@ wittyErrorMsgs = ["You're a bad tester, go home.", \
                   "Yo dawg, I heard you like testers..", \
                   "Long time no error......", \
                   "ECE 318 is so hard.. :(", \
+                  "All hail clouisa.., you da real mvp.", \
                   "110101 100100 010101 10010101 100100101 10010"]
 
 def makeTests():
