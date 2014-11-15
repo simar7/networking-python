@@ -34,6 +34,9 @@ wittyErrorMsgs = ["You're a bad tester, go home.", \
                   "@#$*@#$ @#$( @#*$ @#$(&^^ @**$#@", \
                   "Well.. what are you waiting for, fix this shit cuz it ain't workin.", \
                   "DAT AP tho..", \
+                  "Yo dawg, I heard you like testers..", \
+                  "Long time no error......", \
+                  "ECE 318 is so hard.. :(", \
                   "110101 100100 010101 10010101 100100101 10010"]
 
 def makeTests():
