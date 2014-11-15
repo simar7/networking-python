@@ -244,7 +244,7 @@ def transmit_worker():
 
             # when in binary exponential back off wait till time has passed
             if send_time > current_tick:
-                logging.info("[%s] The next sent time is at tick %s" % (src_name, send_time))
+                logging.debug("[%s] The next sent time is at tick %s" % (src_name, send_time))
                 continue
 
             if newPacket in link_queue:
