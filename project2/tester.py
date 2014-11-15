@@ -50,11 +50,11 @@ def makeTests_Q5(nodeCount):
             testList.append('./simulator.py -N %s -A %s -W %s -L %s -P %s --tickLen %s -T %s --calc %s' %\
                     (nodeCount, avgPackets, lan_speed, pkt_len_in_bits, p_pram_q5[perElem], ticklen, totalticks, whatWeNeed))
 
-def runTests():
+def runTests(question):
     print "[%s]: Brace yourself, running tests now..." % (runTests.__name__)
     try:
         cur_sys_time = strftime("%H:%M:%S:%MS", time.localtime())
-        with open("%s.log" % cur_sys_time, "a+") as logFile:
+        with open("%s-%s.log" % cur_sys_time, question, "a+") as logFile:
             for test in testList:
                 print >>logFile, ("[%s]: Currently running: %s\n" % (runTests.__name__, test))
                 logFile.flush()
@@ -122,7 +122,7 @@ def main(args):
             raise Exception("Please enter a valid question to solve for.")
 
         # Decide your fate.
-        runTests()
+        runTests(args[1])
 
     except Exception as e:
         print "Computer> %s \nComputer> ret_msg: %s" % \
