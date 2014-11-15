@@ -56,6 +56,7 @@ global_tick          = 0
 packet_dropped      = 0
 packet_transmitted  = 0
 packet_collided     = 0
+packet_defered      = 0
 CALC                = None
 throughput          = 0
 total_delay         = 0.0
@@ -107,7 +108,7 @@ Helper Functions
 """
 
 def get_probability():
-    return random.uniform(0, 2.0 * float(P_PRAM))
+    return random.random()
 
 def dequeue_helper():
     for packet in link_queue:
@@ -336,6 +337,7 @@ def node(node):
                 # wait time generated using last binary exponential backoff
                 if node in nodes_exp_backoff:
                     nodes_send_time[node] = global_tick + random.uniform(0, nodes_last_binary_exp[node])
+
                 logging.debug("[%s]: Channel Busy, Restarting carrier sensing at tick %s.." %\
                         (node, nodes_src_time_dict[node]))
             # p persistance
@@ -371,8 +373,11 @@ def node(node):
                 # defer packet
                 if prob >= float(P_PRAM):
                     nodes_double_sensed[node] = True
+                    global packet_defered
+                    packet_defered += 1
                     # put the current packet back to queue to retransmit
                     nodes_src_buffer_dict[node].insert(0, packet_in_transit[node])
+                    nodes_beb_count[node] = -1
                     packet_in_transit[node] = None
 
             # transmit packet when packet is not deferred
@@ -412,6 +417,7 @@ def nerdystats():
     logging.info("[%s]: packets transmitted: %s" % (nerdystats.__name__, packet_transmitted))
     logging.info("[%s]: packets collided   : %s" % (nerdystats.__name__, packet_collided))
     logging.info("[%s]: packets dropped    : %s" % (nerdystats.__name__, packet_dropped))
+    logging.info("[%s]: packets defered    : %s" % (nerdystats.__name__, packet_defered))
     logging.info("[%s]: len of link_queue  : %s" % (nerdystats.__name__, len(link_queue)))
 
     global throughput
