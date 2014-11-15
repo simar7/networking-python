@@ -21,7 +21,14 @@ def main(args):
 
     elif args[1] == 'Q2':
         times = int(args[2])
-        testList.append('./simulator.py --generation M --tickLen 0.0000001 --numOfTicks 1000000 --service D --lambda 100 -L 2000 -C 1000000 --size inf')
+        testList.append('./simulator.py --generation M --tickLen 0.00001 --numOfTicks 10000000 --service D --lambda 100 -L 2000 -C 1000000 --size inf')
+
+    elif args[1] == 'Q3':
+        times = int(args[2])
+        lambda_list = ['150', '200', '250', '300', '350', '400']
+        rho_list = ['0.3', '0.4', '0.5', '0.6', '0.7', '0.8']
+        for counter in xrange(0, len(lambda_list)):
+            testList.append('./simulator.py --generation M --tickLen 0.0001 --numOfTicks 10000000 --service D --lambda %s -L 2000 -C 1000000 --size inf --rho %s' % (int(lambda_list[counter]), float(rho_list[counter])))
 
     elif args[1] == 'Q3' and args[2] is not None:
         # valid start and end are 0.3 and 0.9
@@ -31,12 +38,13 @@ def main(args):
 
         global rhoValues
         rhoValues = numpy.arange(start, end, 0.1)
-        times = len(rhoValues)
+        print "[rhovals] = %s" % rhoValues
 
         # lambda_calc = (C * rho)/L
         for rhoval in rhoValues:
             lambda_cal = (1000000 * float(rhoval)) / 2000
-            testList.append('./simulator.py --generation M --tickLen 0.0000001 --numOfTicks 1000000 --service D --lambda %s --rho %s' % (lambda_cal, rhoval))
+            print "lambda_cal = %s" % lambda_cal
+            testList.append('./simulator.py --generation M --tickLen 0.00001 --numOfTicks 10000000 --service D --lambda %s --rho %s' % (lambda_cal, rhoval))
 
     try:
         for repeat in xrange(0, times):
