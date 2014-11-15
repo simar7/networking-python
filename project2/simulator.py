@@ -343,7 +343,7 @@ def transmit_worker():
                         # update next transmit time with a random wait time
                         # wait time generated using last binary exponential backoff
                         if src_name in nodes_exp_backoff:
-                            send_time = current_tick + random.random(0, last_binary_exp)
+                            send_time = current_tick + random.uniform(0, last_binary_exp)
                         logging.debug("[%s]: Channel Busy, Restarting carrier sensing at tick %s.." %\
                                 (src_name, nodes_src_time_dict[src_name]))
                     # p persistance
