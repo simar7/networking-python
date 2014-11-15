@@ -119,7 +119,7 @@ def dequeue_helper():
                 try:
                     link_queue.remove(packet)
                     logging.debug("[%s] Packet from sender %s at time %s" %\
-                            (dequeue_helper.__name__, packet.sender, global_time))
+                            (dequeue_helper.__name__, packet.sender, global_tick))
                     global total_delay
                     total_delay += (global_tick - packet.send_time)
                 except Exception as e:
@@ -433,10 +433,10 @@ def nerdystats():
     avgDelay = (total_delay*TICK_DURATION) / packet_transmitted
 
     if CALC == 'throughput':
-        logging.info("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
+        logging.info("[%s]:  Throughput    : %s" % (nerdystats.__name__, throughput))
         logging.debug("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
     if CALC == 'avgDelay':
-        logging.info("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
+        logging.info("[%s]:  Average Delay : %s" % (nerdystats.__name__, avgDelay))
         logging.debug("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
     if CALC == 'both':
         logging.info("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
