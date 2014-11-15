@@ -22,8 +22,8 @@ pkt_len_in_bits = 12000
 p_pram_sanity = [1]
 p_pram = [2, 0.01, 0.1, 0.5, 0.6, 0.9, 1]
 p_pram_q5 = [0.01, 0.1, 0.3, 0.6, 1]
-ticklen = 1e-6
-totalticks = int(1e7)
+ticklen = 1e-3
+totalticks = int(1e4)
 whatWeNeed = None
 
 wittyErrorMsgs = ["You're a bad tester, go home.", \
@@ -70,11 +70,11 @@ def main(args):
         if args[1] == 'sanity':
             global packetPerSecList
             # NOTE: Increasing packet per sec for testing collision
-            packetPerSecList.append(100)
+            packetPerSecList.append(5)
             global numberOfNodesList
-            numberOfNodesList.append(3)
+            numberOfNodesList.append(20)
             global whatWeNeed
-            whatWeNeed = 'throughput'
+            whatWeNeed = 'both'
             global testlist
             testList.append('./simulator.py -N %s -A %s -W %s -L %s -P %s --tickLen %s -T %s --calc %s' %\
                     (numberOfNodesList[0], packetPerSecList[0], lan_speed, \

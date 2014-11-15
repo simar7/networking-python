@@ -90,7 +90,7 @@ class Packet:
         if self.jamming:
             return ((current_tick - self.send_time) >= JAMMING_TIME)
         else:
-            if current_tick % 10000 == 0:
+            if current_tick % D_TRANS == 0:
                 logging.info("[%s]: current_tick: %s | send_time: %s | D_TRANS: %s" % ("is_fully_transmitted", current_tick, self.send_time, D_TRANS))
                 return ((current_tick - self.send_time) >= D_TRANS)
 
@@ -120,6 +120,7 @@ def dequeue_helper():
                     link_queue.remove(packet)
                     logging.debug("[%s] Packet from sender %s at time %s" %\
                             (dequeue_helper.__name__, packet.sender, global_time))
+                    global total_delay
                     total_delay += (global_tick - packet.send_time)
                 except Exception as e:
                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
@@ -419,6 +420,7 @@ def nerdystats():
         logging.info("[%s]: Node #%s had idle time: %s ticks of fun time." %\
                 (nerdystats.__name__, node, nodes_src_idle_dict[node]))
 
+    global avgDelay
     avgDelay = (total_delay*TICK_DURATION) / packet_transmitted
 
     if CALC == 'throughput':
