@@ -1,0 +1,85 @@
+[rhovals] = [ 0.3  0.4  0.5  0.6  0.7  0.8  0.9]
+lambda_cal = 150.0
+lambda_cal = 200.0
+lambda_cal = 250.0
+lambda_cal = 300.0
+lambda_cal = 350.0
+lambda_cal = 400.0
+lambda_cal = 450.0
+Program is starting...
+packet transmitted: 15246
+packet received: 25
+packet dropped: 0
+rho val: 0.3
+lambda val: 150.0
+packet dropped percent: 0.0
+server idle: 64
+E[N]: 7623.594228
+E[T]: 5191394.28
+------END OF TEST : 14:19:24:19------
+Program is starting...
+packet transmitted: 19886
+packet received: 25
+packet dropped: 0
+rho val: 0.4
+lambda val: 200.0
+packet dropped percent: 0.0
+server idle: 152
+E[N]: 9869.4020709
+E[T]: 5195378.28
+------END OF TEST : 14:19:24:19------
+Program is starting...
+packet transmitted: 34791
+packet received: 25
+packet dropped: 0
+rho val: 0.7
+lambda val: 350.0
+packet dropped percent: 0.0
+server idle: 317
+E[N]: 17349.7917885
+E[T]: 5196535.92
+------END OF TEST : 14:19:24:19------
+Program is starting...
+packet transmitted: 24845
+packet received: 25
+packet dropped: 0
+rho val: 0.5
+lambda val: 250.0
+packet dropped percent: 0.0
+server idle: 75
+E[N]: 12410.421561
+E[T]: 5195199.08
+------END OF TEST : 14:19:24:19------
+Program is starting...
+packet transmitted: 39954
+packet received: 25
+packet dropped: 0
+rho val: 0.8
+lambda val: 400.0
+packet dropped percent: 0.0
+server idle: 49
+E[N]: 20080.0671775
+E[T]: 5196145.72
+------END OF TEST : 14:19:24:19------
+Program is starting...
+packet transmitted: 29996
+packet received: 25
+packet dropped: 0
+rho val: 0.6
+lambda val: 300.0
+packet dropped percent: 0.0
+server idle: 306
+E[N]: 14960.4786967
+E[T]: 5195454.2
+------END OF TEST : 14:19:24:19------
+Program is starting...
+packet transmitted: 44966
+packet received: 25
+packet dropped: 0
+rho val: 0.9
+lambda val: 450.0
+packet dropped percent: 0.0
+server idle: 36
+E[N]: 22509.908626
+E[T]: 5197775.72
+------END OF TEST : 14:19:24:19------

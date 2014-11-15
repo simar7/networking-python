@@ -1,0 +1,50 @@
+Program is starting...
+packet transmitted: 9943
+packet received: 9943
+packet dropped: 0
+rho val: 0.0
+packet dropped percent: 0.0
+server idle: 8011400
+E[N]: 0.0224857
+E[T]: 222.614603238
+------END OF TEST : 05:40:15:40------
+Program is starting...
+packet transmitted: 9848
+packet received: 9848
+packet dropped: 0
+rho val: 0.0
+packet dropped percent: 0.0
+server idle: 8030400
+E[N]: 0.0243324
+E[T]: 224.707961007
+------END OF TEST : 05:40:16:40------
+Program is starting...
+packet transmitted: 10013
+packet received: 10013
+packet dropped: 0
+rho val: 0.0
+packet dropped percent: 0.0
+server idle: 7997400
+E[N]: 0.023994
+E[T]: 223.962848297
+------END OF TEST : 05:40:16:40------
+Program is starting...
+packet transmitted: 10005
+packet received: 10005
+packet dropped: 0
+rho val: 0.0
+packet dropped percent: 0.0
+server idle: 7999000
+E[N]: 0.0246306
+E[T]: 224.618290855
+------END OF TEST : 05:40:16:40------
+Program is starting...
+packet transmitted: 9954
+packet received: 9954
+packet dropped: 0
+rho val: 0.0
+packet dropped percent: 0.0
+server idle: 8009200
+E[N]: 0.0244828
+E[T]: 224.59594133
+------END OF TEST : 05:40:17:40------
