@@ -1,0 +1,200 @@
+packet transmitted: 33
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 2076
+E[N]: 21.236981
+E[T]: 40000000.0
+------END OF TEST : 02:01:57:01------
+packet transmitted: 11
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 13798
+E[N]: 3.986948
+E[T]: 40000000.0
+------END OF TEST : 02:01:57:01------
+packet transmitted: 25
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 211
+E[N]: 12.392885
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 29
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 9792
+E[N]: 13.539321
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 11
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 15581
+E[N]: 2.865497
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 25
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 14494
+E[N]: 11.655255
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 24
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 19277
+E[N]: 11.015868
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 32
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 8976
+E[N]: 13.395595
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 28
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 65371
+E[N]: 13.472227
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 33
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 26005
+E[N]: 14.902415
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 18
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 24720
+E[N]: 8.672136
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 18
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 10163
+E[N]: 6.896738
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 32
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 14572
+E[N]: 16.057025
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 34
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 23987
+E[N]: 17.524509
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 23
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 15108
+E[N]: 10.740336
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 32
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 48929
+E[N]: 13.528244
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 25
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 23926
+E[N]: 15.354854
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 35
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 37790
+E[N]: 16.576146
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 15
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 22645
+E[N]: 5.772426
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 33
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 52548
+E[N]: 15.327554
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 19
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 56989
+E[N]: 8.379777
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 12
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 55654
+E[N]: 3.739021
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 31
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 134248
+E[N]: 13.396745
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 20
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 135796
+E[N]: 7.632883
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------
+packet transmitted: 11
+packet received: 1
+packet dropped: 0
+packet dropped percent: 0.0
+server idle: 175186
+E[N]: 3.365271
+E[T]: 40000000.0
+------END OF TEST : 02:01:58:01------

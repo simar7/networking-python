@@ -97,6 +97,7 @@ def tickTock():
     print "packet received: %s" % packet_received
     print "packet dropped: %s" % packet_dropped
     print "rho val: %s" % RHO_VAL
+    print "lambda val: %s" %  LAMBDA
 
     if packet_transmitted != 0:
         print "packet dropped percent: %s" % (packet_dropped * 100.0 / packet_transmitted)

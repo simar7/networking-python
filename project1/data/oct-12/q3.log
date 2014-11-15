@@ -1,0 +1,66 @@
+Program is starting...
+packet transmitted: 392466
+packet received: 392466
+packet dropped: 0
+rho val: 0.8
+lambda val: 400.0
+packet dropped percent: 0.0
+server idle: 2150680
+E[N]: 1.3533265
+E[T]: 54.4826430825
+------END OF TEST : 14:27:49:27------
+Program is starting...
+packet transmitted: 247343
+packet received: 247343
+packet dropped: 0
+rho val: 0.5
+lambda val: 250.0
+packet dropped percent: 0.0
+server idle: 5053146
+E[N]: 0.2305827
+E[T]: 29.3223863218
+------END OF TEST : 14:27:49:27------
+Program is starting...
+packet transmitted: 149001
+packet received: 149001
+packet dropped: 0
+rho val: 0.3
+lambda val: 150.0
+packet dropped percent: 0.0
+server idle: 7019980
+E[N]: 0.0600684
+E[T]: 24.0314091852
+------END OF TEST : 14:27:49:27------
+Program is starting...
+packet transmitted: 296164
+packet received: 296164
+packet dropped: 0
+rho val: 0.6
+lambda val: 300.0
+packet dropped percent: 0.0
+server idle: 4076729
+E[N]: 0.4092324
+E[T]: 33.8177631312
+------END OF TEST : 14:27:49:27------
+Program is starting...
+packet transmitted: 197291
+packet received: 197291
+packet dropped: 0
+rho val: 0.4
+lambda val: 200.0
+packet dropped percent: 0.0
+server idle: 6054180
+E[N]: 0.1222863
+E[T]: 26.1982705749
+------END OF TEST : 14:27:50:27------
+Program is starting...
+packet transmitted: 343635
+packet received: 343634
+packet dropped: 0
+rho val: 0.7
+lambda val: 350.0
+packet dropped percent: 0.0
+server idle: 3127329
+E[N]: 0.7228962
+E[T]: 41.0367658614
+------END OF TEST : 14:27:50:27------
