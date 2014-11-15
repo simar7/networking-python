@@ -121,7 +121,7 @@ def dequeue_helper():
                     logging.debug("[%s] Packet from sender %s at time %s" %\
                             (dequeue_helper.__name__, packet.sender, global_tick))
                     global total_delay
-                    total_delay += (global_tick - packet.send_time)
+                    total_delay += (packet.send_time - packet.gen_time)
                 except Exception as e:
                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
                         (dequeue_helper.__name__, e.message))
