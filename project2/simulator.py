@@ -337,7 +337,7 @@ def node(node):
                 if node in nodes_exp_backoff:
                     nodes_send_time[node] = global_tick + random.uniform(0, nodes_last_binary_exp[node])
                 logging.debug("[%s]: Channel Busy, Restarting carrier sensing at tick %s.." %\
-                        (node, nodes_src_time_dict[src_name]))
+                        (node, nodes_src_time_dict[node]))
             # p persistance
             else:
                 # second time sensing
@@ -354,7 +354,7 @@ def node(node):
                         # will try to resend the packet after binary exponential backoff time
                         nodes_send_time[node] = global_tick + nodes_beb_count[node]
                     logging.debug("[%s]: Channel Busy, Restarting carrier sensing at tick %s.." %\
-                        (node, nodes_src_time_dict[src_name]))
+                        (node, nodes_src_time_dict[node]))
                 # first time sensing
                 else:
                     logging.debug("[%s]: Channel Busy, Restarting carrier sensing at next tick.." % (node))
