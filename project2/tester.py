@@ -10,6 +10,7 @@ import sys
 import datetime, time
 from time import strftime
 import random
+import traceback
 import subprocess
 
 testList = []
@@ -54,7 +55,7 @@ def runTests(question):
     print "[%s]: Brace yourself, running tests now..." % (runTests.__name__)
     try:
         cur_sys_time = strftime("%H:%M:%S:%MS", time.localtime())
-        with open("%s-%s.log" % cur_sys_time, question, "a+") as logFile:
+        with open("./logs/%s-%s.log" % (cur_sys_time, question), "a+") as logFile:
             for test in testList:
                 print >>logFile, ("[%s]: Currently running: %s\n" % (runTests.__name__, test))
                 logFile.flush()
@@ -64,6 +65,8 @@ def runTests(question):
     except Exception as e:
         print "Computer> %s \nComputer>  ret_msg: %s | ret_code: %s" % \
                 (wittyErrorMsgs[random.randint(0, len(wittyErrorMsgs)-1)], e.message, process.returncode)
+    finally:
+        traceback.print_exc()
 
 def main(args):
     try:
