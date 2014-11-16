@@ -424,7 +424,7 @@ def nerdystats():
     throughput =  packet_transmitted / TOTAL_TIME
 
     for node in NODES_SRC_LIST:
-        logging.info("[%s]: Node #%s had idle time: %s ticks of fun time." %\
+        logging.debug("[%s]: Node #%s had idle time: %s ticks of fun time." %\
                 (nerdystats.__name__, node, nodes_src_idle_dict[node]))
 
     global avgDelay
