@@ -99,9 +99,7 @@ class Packet:
         if self.jamming:
             return ((current_tick - self.send_time) >= JAMMING_TIME)
         else:
-            if current_tick % D_TRANS == 0:
-                logging.debug("[%s]: current_tick: %s | send_time: %s | D_TRANS: %s" % ("is_fully_transmitted", current_tick, self.send_time, D_TRANS))
-                return ((current_tick - self.send_time) >= D_TRANS)
+            return ((current_tick - self.send_time) >= D_TRANS)
 
 """
 Helper Functions
