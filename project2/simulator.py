@@ -127,8 +127,6 @@ def dequeue_helper():
                     link_queue.remove(packet)
                     logging.debug("[%s] Packet from sender %s at time %s" %\
                             (dequeue_helper.__name__, packet.sender, global_tick))
-                    global total_delay
-                    total_delay += (packet.send_time - packet.gen_time)
                 except Exception as e:
                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
                         (dequeue_helper.__name__, e.message))
@@ -255,6 +253,8 @@ def node(node):
             else:
                 logging.debug("[%s]: packet finished at tick %s" % (node, global_tick))
                 packet_transmitted += 1
+                global total_delay
+                total_delay += (packet_in_transit[node].send_time - packet_in_transit[node].gen_time)
             nodes_beb_count[node] = -1
             nodes_double_sensed[node] = False
             if node in nodes_exp_backoff:
@@ -430,12 +430,12 @@ def nerdystats():
 
     if CALC == 'throughput':
         logging.info("[%s]:  Throughput    : %s" % (nerdystats.__name__, throughput))
-        logging.info("[%s]: Average Delay : %s" % (nerdystats.__name__, avgDelay))
     if CALC == 'avgDelay':
         logging.info("[%s]:  Average Delay : %s" % (nerdystats.__name__, avgDelay))
-        logging.info("[%s]: Throughput    : %s" % (nerdystats.__name__, throughput))
+        logging.info("[%s]: Total Delay : %s" % (nerdystats.__name__, total_delay))
     if CALC == 'both':
         logging.info("[%s]: Average Delay : %s(sec)" % (nerdystats.__name__, avgDelay))
+        logging.info("[%s]: Total Delay : %s" % (nerdystats.__name__, total_delay))
         logging.info("[%s]: Throughput    : %s(pkt/sec)" % (nerdystats.__name__, throughput))
     else:
         logging.error("[%s]: Invalid Calculation parameter" % (nerdystats.__name__))
