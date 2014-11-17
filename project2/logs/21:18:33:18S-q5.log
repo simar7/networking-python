@@ -1,0 +1,550 @@
+[runTests]: Currently running: ./simulator.py -N 30 -A 1 -W 1000000 -L 12000 -P 0.01 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 297
+INFO:root:[nerdystats]: packets collided   : 2887
+INFO:root:[nerdystats]: packets dropped    : 2
+INFO:root:[nerdystats]: packets defered    : 35609
+INFO:root:[nerdystats]: len of link_queue  : 0
+INFO:root:[nerdystats]: Average Delay : 0.0194087542088(sec)
+INFO:root:[nerdystats]: Total Delay : 57644.0
+INFO:root:[nerdystats]: Throughput    : 29.7(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 1 -W 1000000 -L 12000 -P 0.1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 283
+INFO:root:[nerdystats]: packets collided   : 1234
+INFO:root:[nerdystats]: packets dropped    : 0
+INFO:root:[nerdystats]: packets defered    : 2797
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.0076445229682(sec)
+INFO:root:[nerdystats]: Total Delay : 21634.0
+INFO:root:[nerdystats]: Throughput    : 28.3(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 1 -W 1000000 -L 12000 -P 0.3 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 298
+INFO:root:[nerdystats]: packets collided   : 708
+INFO:root:[nerdystats]: packets dropped    : 0
+INFO:root:[nerdystats]: packets defered    : 657
+INFO:root:[nerdystats]: len of link_queue  : 0
+INFO:root:[nerdystats]: Average Delay : 0.00540100671141(sec)
+INFO:root:[nerdystats]: Total Delay : 16095.0
+INFO:root:[nerdystats]: Throughput    : 29.8(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 1 -W 1000000 -L 12000 -P 0.6 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 300
+INFO:root:[nerdystats]: packets collided   : 131
+INFO:root:[nerdystats]: packets dropped    : 0
+INFO:root:[nerdystats]: packets defered    : 196
+INFO:root:[nerdystats]: len of link_queue  : 0
+INFO:root:[nerdystats]: Average Delay : 0.00696566666667(sec)
+INFO:root:[nerdystats]: Total Delay : 20897.0
+INFO:root:[nerdystats]: Throughput    : 30.0(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 1 -W 1000000 -L 12000 -P 1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 303
+INFO:root:[nerdystats]: packets collided   : 130
+INFO:root:[nerdystats]: packets dropped    : 0
+INFO:root:[nerdystats]: packets defered    : 0
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.00313234323432(sec)
+INFO:root:[nerdystats]: Total Delay : 9491.0
+INFO:root:[nerdystats]: Throughput    : 30.3(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 2 -W 1000000 -L 12000 -P 0.01 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 547
+INFO:root:[nerdystats]: packets collided   : 11913
+INFO:root:[nerdystats]: packets dropped    : 59
+INFO:root:[nerdystats]: packets defered    : 80478
+INFO:root:[nerdystats]: len of link_queue  : 0
+INFO:root:[nerdystats]: Average Delay : 0.121870018282(sec)
+INFO:root:[nerdystats]: Total Delay : 666629.0
+INFO:root:[nerdystats]: Throughput    : 54.7(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 2 -W 1000000 -L 12000 -P 0.1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 588
+INFO:root:[nerdystats]: packets collided   : 7071
+INFO:root:[nerdystats]: packets dropped    : 36
+INFO:root:[nerdystats]: packets defered    : 6781
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.0684010204082(sec)
+INFO:root:[nerdystats]: Total Delay : 402198.0
+INFO:root:[nerdystats]: Throughput    : 58.8(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 2 -W 1000000 -L 12000 -P 0.3 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 564
+INFO:root:[nerdystats]: packets collided   : 2896
+INFO:root:[nerdystats]: packets dropped    : 19
+INFO:root:[nerdystats]: packets defered    : 1397
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.0484017730496(sec)
+INFO:root:[nerdystats]: Total Delay : 272986.0
+INFO:root:[nerdystats]: Throughput    : 56.4(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 2 -W 1000000 -L 12000 -P 0.6 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 583
+INFO:root:[nerdystats]: packets collided   : 1363
+INFO:root:[nerdystats]: packets dropped    : 13
+INFO:root:[nerdystats]: packets defered    : 383
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.0341(sec)
+INFO:root:[nerdystats]: Total Delay : 198803.0
+INFO:root:[nerdystats]: Throughput    : 58.3(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 2 -W 1000000 -L 12000 -P 1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 617
+INFO:root:[nerdystats]: packets collided   : 727
+INFO:root:[nerdystats]: packets dropped    : 0
+INFO:root:[nerdystats]: packets defered    : 0
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.0250489465154(sec)
+INFO:root:[nerdystats]: Total Delay : 154552.0
+INFO:root:[nerdystats]: Throughput    : 61.7(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 3 -W 1000000 -L 12000 -P 0.01 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 662
+INFO:root:[nerdystats]: packets collided   : 18771
+INFO:root:[nerdystats]: packets dropped    : 170
+INFO:root:[nerdystats]: packets defered    : 111083
+INFO:root:[nerdystats]: len of link_queue  : 3
+INFO:root:[nerdystats]: Average Delay : 0.309372205438(sec)
+INFO:root:[nerdystats]: Total Delay : 2048044.0
+INFO:root:[nerdystats]: Throughput    : 66.2(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 3 -W 1000000 -L 12000 -P 0.1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 698
+INFO:root:[nerdystats]: packets collided   : 13014
+INFO:root:[nerdystats]: packets dropped    : 133
+INFO:root:[nerdystats]: packets defered    : 8366
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.197321060172(sec)
+INFO:root:[nerdystats]: Total Delay : 1377301.0
+INFO:root:[nerdystats]: Throughput    : 69.8(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 3 -W 1000000 -L 12000 -P 0.3 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 718
+INFO:root:[nerdystats]: packets collided   : 6245
+INFO:root:[nerdystats]: packets dropped    : 130
+INFO:root:[nerdystats]: packets defered    : 1777
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.204549582173(sec)
+INFO:root:[nerdystats]: Total Delay : 1468666.0
+INFO:root:[nerdystats]: Throughput    : 71.8(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 3 -W 1000000 -L 12000 -P 0.6 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 752
+INFO:root:[nerdystats]: packets collided   : 2754
+INFO:root:[nerdystats]: packets dropped    : 115
+INFO:root:[nerdystats]: packets defered    : 546
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.19304787234(sec)
+INFO:root:[nerdystats]: Total Delay : 1451720.0
+INFO:root:[nerdystats]: Throughput    : 75.2(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 3 -W 1000000 -L 12000 -P 1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 817
+INFO:root:[nerdystats]: packets collided   : 1317
+INFO:root:[nerdystats]: packets dropped    : 0
+INFO:root:[nerdystats]: packets defered    : 0
+INFO:root:[nerdystats]: len of link_queue  : 3
+INFO:root:[nerdystats]: Average Delay : 0.240265728274(sec)
+INFO:root:[nerdystats]: Total Delay : 1962971.0
+INFO:root:[nerdystats]: Throughput    : 81.7(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 4 -W 1000000 -L 12000 -P 0.01 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 726
+INFO:root:[nerdystats]: packets collided   : 23236
+INFO:root:[nerdystats]: packets dropped    : 300
+INFO:root:[nerdystats]: packets defered    : 124766
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.690275619835(sec)
+INFO:root:[nerdystats]: Total Delay : 5011401.0
+INFO:root:[nerdystats]: Throughput    : 72.6(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 4 -W 1000000 -L 12000 -P 0.1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 751
+INFO:root:[nerdystats]: packets collided   : 18978
+INFO:root:[nerdystats]: packets dropped    : 291
+INFO:root:[nerdystats]: packets defered    : 10360
+INFO:root:[nerdystats]: len of link_queue  : 0
+INFO:root:[nerdystats]: Average Delay : 0.511746338216(sec)
+INFO:root:[nerdystats]: Total Delay : 3843215.0
+INFO:root:[nerdystats]: Throughput    : 75.1(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 4 -W 1000000 -L 12000 -P 0.3 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 767
+INFO:root:[nerdystats]: packets collided   : 10095
+INFO:root:[nerdystats]: packets dropped    : 261
+INFO:root:[nerdystats]: packets defered    : 2252
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.554405867014(sec)
+INFO:root:[nerdystats]: Total Delay : 4252293.0
+INFO:root:[nerdystats]: Throughput    : 76.7(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 4 -W 1000000 -L 12000 -P 0.6 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 806
+INFO:root:[nerdystats]: packets collided   : 4206
+INFO:root:[nerdystats]: packets dropped    : 249
+INFO:root:[nerdystats]: packets defered    : 616
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.452131389578(sec)
+INFO:root:[nerdystats]: Total Delay : 3644179.0
+INFO:root:[nerdystats]: Throughput    : 80.6(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 4 -W 1000000 -L 12000 -P 1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 817
+INFO:root:[nerdystats]: packets collided   : 2956
+INFO:root:[nerdystats]: packets dropped    : 0
+INFO:root:[nerdystats]: packets defered    : 0
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.287271113831(sec)
+INFO:root:[nerdystats]: Total Delay : 2347005.0
+INFO:root:[nerdystats]: Throughput    : 81.7(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 5 -W 1000000 -L 12000 -P 0.01 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 765
+INFO:root:[nerdystats]: packets collided   : 25419
+INFO:root:[nerdystats]: packets dropped    : 366
+INFO:root:[nerdystats]: packets defered    : 138923
+INFO:root:[nerdystats]: len of link_queue  : 6
+INFO:root:[nerdystats]: Average Delay : 1.43993777778(sec)
+INFO:root:[nerdystats]: Total Delay : 11015524.0
+INFO:root:[nerdystats]: Throughput    : 76.5(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 5 -W 1000000 -L 12000 -P 0.1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 771
+INFO:root:[nerdystats]: packets collided   : 19862
+INFO:root:[nerdystats]: packets dropped    : 352
+INFO:root:[nerdystats]: packets defered    : 10502
+INFO:root:[nerdystats]: len of link_queue  : 3
+INFO:root:[nerdystats]: Average Delay : 1.08658119326(sec)
+INFO:root:[nerdystats]: Total Delay : 8377541.0
+INFO:root:[nerdystats]: Throughput    : 77.1(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 5 -W 1000000 -L 12000 -P 0.3 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 808
+INFO:root:[nerdystats]: packets collided   : 11800
+INFO:root:[nerdystats]: packets dropped    : 341
+INFO:root:[nerdystats]: packets defered    : 2371
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.982414851485(sec)
+INFO:root:[nerdystats]: Total Delay : 7937912.0
+INFO:root:[nerdystats]: Throughput    : 80.8(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 5 -W 1000000 -L 12000 -P 0.6 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 817
+INFO:root:[nerdystats]: packets collided   : 4410
+INFO:root:[nerdystats]: packets dropped    : 305
+INFO:root:[nerdystats]: packets defered    : 563
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.990661933905(sec)
+INFO:root:[nerdystats]: Total Delay : 8093708.0
+INFO:root:[nerdystats]: Throughput    : 81.7(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 5 -W 1000000 -L 12000 -P 1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 821
+INFO:root:[nerdystats]: packets collided   : 3794
+INFO:root:[nerdystats]: packets dropped    : 0
+INFO:root:[nerdystats]: packets defered    : 0
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.193129598051(sec)
+INFO:root:[nerdystats]: Total Delay : 1585594.0
+INFO:root:[nerdystats]: Throughput    : 82.1(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 6 -W 1000000 -L 12000 -P 0.01 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 767
+INFO:root:[nerdystats]: packets collided   : 26812
+INFO:root:[nerdystats]: packets dropped    : 384
+INFO:root:[nerdystats]: packets defered    : 139467
+INFO:root:[nerdystats]: len of link_queue  : 4
+INFO:root:[nerdystats]: Average Delay : 1.6853232073(sec)
+INFO:root:[nerdystats]: Total Delay : 12926429.0
+INFO:root:[nerdystats]: Throughput    : 76.7(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 6 -W 1000000 -L 12000 -P 0.1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 786
+INFO:root:[nerdystats]: packets collided   : 21860
+INFO:root:[nerdystats]: packets dropped    : 395
+INFO:root:[nerdystats]: packets defered    : 11149
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 1.57503206107(sec)
+INFO:root:[nerdystats]: Total Delay : 12379752.0
+INFO:root:[nerdystats]: Throughput    : 78.6(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 6 -W 1000000 -L 12000 -P 0.3 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 811
+INFO:root:[nerdystats]: packets collided   : 12535
+INFO:root:[nerdystats]: packets dropped    : 394
+INFO:root:[nerdystats]: packets defered    : 2393
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 1.40999876695(sec)
+INFO:root:[nerdystats]: Total Delay : 11435090.0
+INFO:root:[nerdystats]: Throughput    : 81.1(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 6 -W 1000000 -L 12000 -P 0.6 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 820
+INFO:root:[nerdystats]: packets collided   : 5146
+INFO:root:[nerdystats]: packets dropped    : 291
+INFO:root:[nerdystats]: packets defered    : 582
+INFO:root:[nerdystats]: len of link_queue  : 3
+INFO:root:[nerdystats]: Average Delay : 1.26775097561(sec)
+INFO:root:[nerdystats]: Total Delay : 10395558.0
+INFO:root:[nerdystats]: Throughput    : 82.0(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 6 -W 1000000 -L 12000 -P 1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 824
+INFO:root:[nerdystats]: packets collided   : 4120
+INFO:root:[nerdystats]: packets dropped    : 0
+INFO:root:[nerdystats]: packets defered    : 0
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.184016019417(sec)
+INFO:root:[nerdystats]: Total Delay : 1516292.0
+INFO:root:[nerdystats]: Throughput    : 82.4(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 7 -W 1000000 -L 12000 -P 0.01 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 756
+INFO:root:[nerdystats]: packets collided   : 25936
+INFO:root:[nerdystats]: packets dropped    : 396
+INFO:root:[nerdystats]: packets defered    : 137440
+INFO:root:[nerdystats]: len of link_queue  : 3
+INFO:root:[nerdystats]: Average Delay : 1.78822830688(sec)
+INFO:root:[nerdystats]: Total Delay : 13519006.0
+INFO:root:[nerdystats]: Throughput    : 75.6(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 7 -W 1000000 -L 12000 -P 0.1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 794
+INFO:root:[nerdystats]: packets collided   : 22127
+INFO:root:[nerdystats]: packets dropped    : 409
+INFO:root:[nerdystats]: packets defered    : 10958
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 1.94274949622(sec)
+INFO:root:[nerdystats]: Total Delay : 15425431.0
+INFO:root:[nerdystats]: Throughput    : 79.4(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 7 -W 1000000 -L 12000 -P 0.3 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 807
+INFO:root:[nerdystats]: packets collided   : 12315
+INFO:root:[nerdystats]: packets dropped    : 399
+INFO:root:[nerdystats]: packets defered    : 2312
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 1.82762453532(sec)
+INFO:root:[nerdystats]: Total Delay : 14748930.0
+INFO:root:[nerdystats]: Throughput    : 80.7(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 7 -W 1000000 -L 12000 -P 0.6 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 822
+INFO:root:[nerdystats]: packets collided   : 5691
+INFO:root:[nerdystats]: packets dropped    : 296
+INFO:root:[nerdystats]: packets defered    : 622
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 1.75965888078(sec)
+INFO:root:[nerdystats]: Total Delay : 14464396.0
+INFO:root:[nerdystats]: Throughput    : 82.2(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 7 -W 1000000 -L 12000 -P 1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 823
+INFO:root:[nerdystats]: packets collided   : 4230
+INFO:root:[nerdystats]: packets dropped    : 0
+INFO:root:[nerdystats]: packets defered    : 0
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.503310328068(sec)
+INFO:root:[nerdystats]: Total Delay : 4142244.0
+INFO:root:[nerdystats]: Throughput    : 82.3(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 8 -W 1000000 -L 12000 -P 0.01 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 776
+INFO:root:[nerdystats]: packets collided   : 26556
+INFO:root:[nerdystats]: packets dropped    : 401
+INFO:root:[nerdystats]: packets defered    : 142174
+INFO:root:[nerdystats]: len of link_queue  : 3
+INFO:root:[nerdystats]: Average Delay : 2.23554304124(sec)
+INFO:root:[nerdystats]: Total Delay : 17347814.0
+INFO:root:[nerdystats]: Throughput    : 77.6(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 8 -W 1000000 -L 12000 -P 0.1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 781
+INFO:root:[nerdystats]: packets collided   : 22623
+INFO:root:[nerdystats]: packets dropped    : 409
+INFO:root:[nerdystats]: packets defered    : 11152
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 2.01034993598(sec)
+INFO:root:[nerdystats]: Total Delay : 15700833.0
+INFO:root:[nerdystats]: Throughput    : 78.1(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 8 -W 1000000 -L 12000 -P 0.3 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 810
+INFO:root:[nerdystats]: packets collided   : 12169
+INFO:root:[nerdystats]: packets dropped    : 419
+INFO:root:[nerdystats]: packets defered    : 2362
+INFO:root:[nerdystats]: len of link_queue  : 3
+INFO:root:[nerdystats]: Average Delay : 2.29808975309(sec)
+INFO:root:[nerdystats]: Total Delay : 18614527.0
+INFO:root:[nerdystats]: Throughput    : 81.0(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 8 -W 1000000 -L 12000 -P 0.6 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 823
+INFO:root:[nerdystats]: packets collided   : 6174
+INFO:root:[nerdystats]: packets dropped    : 280
+INFO:root:[nerdystats]: packets defered    : 576
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 2.25181300122(sec)
+INFO:root:[nerdystats]: Total Delay : 18532421.0
+INFO:root:[nerdystats]: Throughput    : 82.3(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 8 -W 1000000 -L 12000 -P 1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 829
+INFO:root:[nerdystats]: packets collided   : 5590
+INFO:root:[nerdystats]: packets dropped    : 0
+INFO:root:[nerdystats]: packets defered    : 0
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.201990349819(sec)
+INFO:root:[nerdystats]: Total Delay : 1674500.0
+INFO:root:[nerdystats]: Throughput    : 82.9(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 9 -W 1000000 -L 12000 -P 0.01 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 776
+INFO:root:[nerdystats]: packets collided   : 26492
+INFO:root:[nerdystats]: packets dropped    : 389
+INFO:root:[nerdystats]: packets defered    : 147080
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 2.51558685567(sec)
+INFO:root:[nerdystats]: Total Delay : 19520954.0
+INFO:root:[nerdystats]: Throughput    : 77.6(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 9 -W 1000000 -L 12000 -P 0.1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 785
+INFO:root:[nerdystats]: packets collided   : 21742
+INFO:root:[nerdystats]: packets dropped    : 425
+INFO:root:[nerdystats]: packets defered    : 11291
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 2.46040675159(sec)
+INFO:root:[nerdystats]: Total Delay : 19314193.0
+INFO:root:[nerdystats]: Throughput    : 78.5(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 9 -W 1000000 -L 12000 -P 0.3 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 822
+INFO:root:[nerdystats]: packets collided   : 14677
+INFO:root:[nerdystats]: packets dropped    : 427
+INFO:root:[nerdystats]: packets defered    : 2536
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 2.27480863747(sec)
+INFO:root:[nerdystats]: Total Delay : 18698927.0
+INFO:root:[nerdystats]: Throughput    : 82.2(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 9 -W 1000000 -L 12000 -P 0.6 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 823
+INFO:root:[nerdystats]: packets collided   : 6108
+INFO:root:[nerdystats]: packets dropped    : 288
+INFO:root:[nerdystats]: packets defered    : 567
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 2.03934386391(sec)
+INFO:root:[nerdystats]: Total Delay : 16783800.0
+INFO:root:[nerdystats]: Throughput    : 82.3(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 9 -W 1000000 -L 12000 -P 1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 827
+INFO:root:[nerdystats]: packets collided   : 5496
+INFO:root:[nerdystats]: packets dropped    : 2
+INFO:root:[nerdystats]: packets defered    : 0
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.177080652963(sec)
+INFO:root:[nerdystats]: Total Delay : 1464457.0
+INFO:root:[nerdystats]: Throughput    : 82.7(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 10 -W 1000000 -L 12000 -P 0.01 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 758
+INFO:root:[nerdystats]: packets collided   : 27022
+INFO:root:[nerdystats]: packets dropped    : 409
+INFO:root:[nerdystats]: packets defered    : 146144
+INFO:root:[nerdystats]: len of link_queue  : 0
+INFO:root:[nerdystats]: Average Delay : 2.6691828496(sec)
+INFO:root:[nerdystats]: Total Delay : 20232406.0
+INFO:root:[nerdystats]: Throughput    : 75.8(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 10 -W 1000000 -L 12000 -P 0.1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 805
+INFO:root:[nerdystats]: packets collided   : 23144
+INFO:root:[nerdystats]: packets dropped    : 444
+INFO:root:[nerdystats]: packets defered    : 11466
+INFO:root:[nerdystats]: len of link_queue  : 5
+INFO:root:[nerdystats]: Average Delay : 2.48560857143(sec)
+INFO:root:[nerdystats]: Total Delay : 20009149.0
+INFO:root:[nerdystats]: Throughput    : 80.5(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 10 -W 1000000 -L 12000 -P 0.3 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 813
+INFO:root:[nerdystats]: packets collided   : 13335
+INFO:root:[nerdystats]: packets dropped    : 419
+INFO:root:[nerdystats]: packets defered    : 2554
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 2.6581895449(sec)
+INFO:root:[nerdystats]: Total Delay : 21611081.0
+INFO:root:[nerdystats]: Throughput    : 81.3(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 10 -W 1000000 -L 12000 -P 0.6 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 829
+INFO:root:[nerdystats]: packets collided   : 7557
+INFO:root:[nerdystats]: packets dropped    : 323
+INFO:root:[nerdystats]: packets defered    : 600
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 2.40943112183(sec)
+INFO:root:[nerdystats]: Total Delay : 19974184.0
+INFO:root:[nerdystats]: Throughput    : 82.9(pkt/sec)
+Program is starting...
+[runTests]: Currently running: ./simulator.py -N 30 -A 10 -W 1000000 -L 12000 -P 1 --tickLen 0.0001 -T 100000 --calc both
+
+INFO:root:[nerdystats]: packets transmitted: 827
+INFO:root:[nerdystats]: packets collided   : 7025
+INFO:root:[nerdystats]: packets dropped    : 6
+INFO:root:[nerdystats]: packets defered    : 0
+INFO:root:[nerdystats]: len of link_queue  : 1
+INFO:root:[nerdystats]: Average Delay : 0.631072188634(sec)
+INFO:root:[nerdystats]: Total Delay : 5218967.0
+INFO:root:[nerdystats]: Throughput    : 82.7(pkt/sec)
+Program is starting...
