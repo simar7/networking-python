@@ -113,7 +113,7 @@ def dequeue_helper():
         packet_trans_dist = max(packet.sender_index, D_TOTAL_PROP - packet.sender_index)
         # jamming packet take 48 bit time to transmit + propagation delay
         if packet.jamming:
-            if (global_tick > packet.send_time + packet_trans_dist + JAMMING_TIME):
+            if (global_tick >= packet.send_time + packet_trans_dist + JAMMING_TIME):
                 try:
                     link_queue.remove(packet)
                     logging.debug("[%s] Jamming signal from sender %s at time %s" %\
@@ -263,64 +263,65 @@ def node(node):
             nodes_src_sense_dict[node] = 0
         # still in transmission.. performing collision detection
         else:
-            logging.debug("[%s]: still in tx" % node)
-            # jamming signal detection
-            is_jammed = False
-            for packet in link_queue:
-                if (packet.jamming and (packet.sender != node)):
-                    # abort current transmission
-                    is_jammed = True
-                    try:
-                        link_queue.remove(packet_in_transit[node])
-                        logging.debug("[%s]: Abort Transmission at tick %s" %\
-                                (node, global_tick))
-                    except Exception as e:
-                        logging.debug("[%s]: Nothing to remove, safe. | ret_msg: %s" %\
-                                (node, e.message))
-                    finally:
-                        packet_collided += 1
-                        logging.debug("[%s]: Signal jammed at tick %s" % (node, global_tick))
-                        # binary exponentail backoff after seeing jamming signal
-                        nodes_beb_count[node] = binary_backoff(node)
-                        if nodes_beb_count[node] == -1:
-                            logging.debug("[%s]: Error in binary exponential backoff " % (node))
-                            packet_dropped += 1
-                        else:
-                            logging.debug("[%s]: Start binary exponential backoff" % (node))
-                            nodes_send_time[node] = global_tick + nodes_beb_count[node]
-                        nodes_beb_count[node] = -1
-                        nodes_src_sense_dict[node] = 0
-                        logging.debug("[%s]: Jamming signal caused next_gen at: %s" %\
-                                (node,nodes_src_time_dict[node]))
-            if not is_jammed:
-                # collision detected
-                collision_detected = is_medium_busy(node, NODES_SRC_INDEX[node])
-                if collision_detected:
-                    logging.debug("[%s]: Collision Detected at tick %s" %\
-                            (node, global_tick))
-                    try:
-                        nodes_src_sense_dict[node] = 0
-                        link_queue.remove(packet_in_transit[node])
+            if not packet_in_transit[node].jamming:
+                logging.debug("[%s]: still in tx" % node)
+                # jamming signal detection
+                is_jammed = False
+                for packet in link_queue:
+                    if (packet.jamming and (packet.sender != node)):
                         # abort current transmission
-                        logging.debug("[%s]: Abort Transmission at tick %s" %\
+                        is_jammed = True
+                        try:
+                            link_queue.remove(packet_in_transit[node])
+                            logging.debug("[%s]: Abort Transmission at tick %s" %\
+                                    (node, global_tick))
+                        except Exception as e:
+                            logging.debug("[%s]: Nothing to remove, safe. | ret_msg: %s" %\
+                                    (node, e.message))
+                        finally:
+                            packet_collided += 1
+                            logging.debug("[%s]: Signal jammed at tick %s" % (node, global_tick))
+                            # binary exponentail backoff after seeing jamming signal
+                            nodes_beb_count[node] = binary_backoff(node)
+                            if nodes_beb_count[node] == -1:
+                                logging.debug("[%s]: Error in binary exponential backoff " % (node))
+                                packet_dropped += 1
+                            else:
+                                logging.debug("[%s]: Start binary exponential backoff" % (node))
+                                nodes_send_time[node] = global_tick + nodes_beb_count[node]
+                            nodes_beb_count[node] = -1
+                            nodes_src_sense_dict[node] = 0
+                            logging.debug("[%s]: Jamming signal caused next_gen at: %s" %\
+                                    (node,nodes_src_time_dict[node]))
+                if not is_jammed:
+                    # collision detected
+                    collision_detected = is_medium_busy(node, NODES_SRC_INDEX[node])
+                    if collision_detected:
+                        logging.debug("[%s]: Collision Detected at tick %s" %\
                                 (node, global_tick))
-                    except Exception as e:
-                        logging.debug("[%s]: Nothing to remove, safe. | ret_msg: %s" %\
-                            (node, e.message))
-                    # put the current packet back to queue to retransmit
-                    nodes_src_buffer_dict[node].insert(0, packet_in_transit[node])
-                    # transmit jamming signal
-                    packet_in_transit[node] = Packet(node, NODES_SRC_INDEX[node], global_tick, True)
-                    packet_in_transit[node].send_time= global_tick
-                    try:
-                        link_queue.append(packet_in_transit[node])
-                        logging.debug("[%s]: Transmit jamming signal at tick %s" %\
-                                (node, global_tick))
-                    except Exception as e:
-                        logging.error("[%s]: Exception was raised! msg: %s" %\
+                        try:
+                            nodes_src_sense_dict[node] = 0
+                            link_queue.remove(packet_in_transit[node])
+                            # abort current transmission
+                            logging.debug("[%s]: Abort Transmission at tick %s" %\
+                                    (node, global_tick))
+                        except Exception as e:
+                            logging.debug("[%s]: Nothing to remove, safe. | ret_msg: %s" %\
                                 (node, e.message))
-                    finally:
-                        packet_collided += 1
+                        # put the current packet back to queue to retransmit
+                        nodes_src_buffer_dict[node].insert(0, packet_in_transit[node])
+                        # transmit jamming signal
+                        packet_in_transit[node] = Packet(node, NODES_SRC_INDEX[node], global_tick, True)
+                        packet_in_transit[node].send_time= global_tick
+                        try:
+                            link_queue.append(packet_in_transit[node])
+                            logging.debug("[%s]: Transmit jamming signal at tick %s" %\
+                                    (node, global_tick))
+                        except Exception as e:
+                            logging.error("[%s]: Exception was raised! msg: %s" %\
+                                    (node, e.message))
+                        finally:
+                            packet_collided += 1
 
     else:
         sensing_time = medium_sensing_time(global_tick, node, NODES_SRC_INDEX[node])
