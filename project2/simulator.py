@@ -73,6 +73,7 @@ class Packet:
         self.sender_index = sender_index
         self.gen_time = gen_time
         self.send_time = None
+        self.collision = False
 
     def is_detected(self, from_index, current_tick):
         """ Check if the the packet can be sensed from the given index
@@ -122,7 +123,7 @@ def dequeue_helper():
                     logging.debug("[%s]: nothing to remove, safe. | ret_msg: %s" %\
                         (dequeue_helper.__name__, e.message))
         else:
-            if (global_tick >= packet.send_time + packet_trans_dist + D_TRANS):
+            if packet.collision or (global_tick >= packet.send_time + packet_trans_dist + D_TRANS):
                 try:
                     link_queue.remove(packet)
                     logging.debug("[%s] Packet from sender %s at time %s" %\
@@ -272,7 +273,10 @@ def node(node):
                         # abort current transmission
                         is_jammed = True
                         try:
-                            link_queue.remove(packet_in_transit[node])
+                            packet_in_transit[node].collision = True
+                            packet_idx = link_queue.index(packet_in_transit[node])
+                            link_queue[packet_idx] = packet_in_transit[node]
+                            packet_in_transit[node].collision = False
                             logging.debug("[%s]: Abort Transmission at tick %s" %\
                                     (node, global_tick))
                         except Exception as e:
@@ -289,7 +293,6 @@ def node(node):
                             else:
                                 logging.debug("[%s]: Start binary exponential backoff" % (node))
                                 nodes_send_time[node] = global_tick + nodes_beb_count[node]
-                            nodes_beb_count[node] = -1
                             nodes_src_sense_dict[node] = 0
                             logging.debug("[%s]: Jamming signal caused next_gen at: %s" %\
                                     (node,nodes_src_time_dict[node]))
@@ -301,7 +304,10 @@ def node(node):
                                 (node, global_tick))
                         try:
                             nodes_src_sense_dict[node] = 0
-                            link_queue.remove(packet_in_transit[node])
+                            packet_in_transit[node].collision = True
+                            packet_idx = link_queue.index(packet_in_transit[node])
+                            link_queue[packet_idx] = packet_in_transit[node]
+                            packet_in_transit[node].collision = False
                             # abort current transmission
                             logging.debug("[%s]: Abort Transmission at tick %s" %\
                                     (node, global_tick))
