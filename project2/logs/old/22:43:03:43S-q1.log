@@ -1,0 +1,198 @@
+[runTests]: Currently running: ./simulator.py -N 20 -A 5 -W 1000000 -L 12000 -P 2 --tickLen 0.001 -T 10000 --calc both
+
+INFO:root:[init]: Transmission Delay: 12.0
+INFO:root:[init]: Total Propagation Delay: 1.0
+INFO:root:[init]: Sense Medium Time: 1.0
+INFO:root:[init]: Jamming Time: 1.0
+INFO:root:[Thread-1]: next gen at: 2
+INFO:root:[Thread-2]: next gen at: 439
+INFO:root:[Thread-3]: next gen at: 59
+INFO:root:[Thread-4]: next gen at: 75
+INFO:root:[Thread-5]: next gen at: 16
+INFO:root:[Thread-6]: next gen at: 151
+INFO:root:[Thread-7]: next gen at: 191
+INFO:root:[Thread-8]: next gen at: 338
+INFO:root:[Thread-9]: next gen at: 150
+INFO:root:[Thread-10]: next gen at: 35
+INFO:root:[Thread-11]: next gen at: 156
+INFO:root:[Thread-12]: next gen at: 230
+INFO:root:[Thread-13]: next gen at: 13
+INFO:root:[Thread-14]: next gen at: 206
+INFO:root:[Thread-15]: next gen at: 86
+INFO:root:[Thread-16]: next gen at: 47
+INFO:root:[Thread-17]: next gen at: 103
+INFO:root:[Thread-18]: next gen at: 22
+INFO:root:[Thread-19]: next gen at: 220
+INFO:root:[Thread-20]: next gen at: 9
+INFO:root:[Thread-1] packet generated at tick 2 is now ready to send
+INFO:root:[Thread-1]: Medium is not busy at: 2
+INFO:root:[Thread-1]: Medium Sensing completed, start to transmit at tick 2
+INFO:root:[Thread-1]: Packet start txing at tick 2
+INFO:root:[Thread-20] packet generated at tick 9 is now ready to send
+INFO:root:[is_fully_transmitted]: current_tick: 12 | send_time: 2 | D_TRANS: 12.0
+INFO:root:[Thread-13] packet generated at tick 13 is now ready to send
+INFO:root:[Thread-1]: Medium is not busy at: 15
+INFO:root:[Thread-1]: Medium Sensing completed, start to transmit at tick 15
+INFO:root:[Thread-1]: Packet start txing at tick 15
+INFO:root:[Thread-20]: Medium is not busy at: 15
+INFO:root:[Thread-20]: Medium Sensing completed, start to transmit at tick 15
+INFO:root:[Thread-20]: Packet start txing at tick 15
+INFO:root:[Thread-1]: Abort Transmission at tick 16
+INFO:root:[Thread-1]: Transmit jamming signal at tick 16
+INFO:root:[Thread-20]: Abort Transmission at tick 16
+INFO:root:[Thread-20]: Signal jammed at tick 16
+INFO:root:[Thread-20]: Start binary exponential backoff
+INFO:root:[Thread-5] packet generated at tick 16 is now ready to send
+INFO:root:[Thread-5]: Medium is not busy at: 16
+INFO:root:[Thread-5]: Medium Sensing completed, start to transmit at tick 16
+INFO:root:[Thread-5]: Packet start txing at tick 16
+INFO:root:[Thread-1]: jamming signal finished
+INFO:root:[Thread-1]: Start binary exponential backoff at tick 17
+INFO:root:[Thread-5]: Abort Transmission at tick 17
+INFO:root:[Thread-5]: Signal jammed at tick 17
+INFO:root:[Thread-5]: Start binary exponential backoff
+INFO:root:[Thread-1] packet generated at tick 2 is now ready to send
+INFO:root:[Thread-1]: Medium is not busy at: 18
+INFO:root:[Thread-1]: Medium Sensing completed, start to transmit at tick 18
+INFO:root:[Thread-1]: Packet start txing at tick 18
+INFO:root:[Thread-18] packet generated at tick 22 is now ready to send
+INFO:root:[is_fully_transmitted]: current_tick: 24 | send_time: 18 | D_TRANS: 12.0
+INFO:root:[Thread-1]: Medium is not busy at: 31
+INFO:root:[Thread-1]: Medium Sensing completed, start to transmit at tick 31
+INFO:root:[Thread-1]: Packet start txing at tick 31
+INFO:root:[Thread-18]: Medium is not busy at: 31
+INFO:root:[Thread-18]: Medium Sensing completed, start to transmit at tick 31
+INFO:root:[Thread-18]: Packet start txing at tick 31
+INFO:root:[Thread-1]: Abort Transmission at tick 32
+INFO:root:[Thread-1]: Transmit jamming signal at tick 32
+INFO:root:[Thread-18]: Abort Transmission at tick 32
+INFO:root:[Thread-18]: Signal jammed at tick 32
+INFO:root:[Thread-18]: Start binary exponential backoff
+INFO:root:[Thread-13]: Medium is not busy at: 32
+INFO:root:[Thread-13]: Medium Sensing completed, start to transmit at tick 32
+INFO:root:[Thread-13]: Packet start txing at tick 32
+INFO:root:[Thread-13]: Abort Transmission at tick 33
+INFO:root:[Thread-13]: Signal jammed at tick 33
+INFO:root:[Thread-13]: Start binary exponential backoff
+INFO:root:[Thread-1]: jamming signal finished
+INFO:root:[Thread-1]: Start binary exponential backoff at tick 33
+INFO:root:[Thread-1] packet generated at tick 2 is now ready to send
+INFO:root:[Thread-1]: Medium is not busy at: 34
+INFO:root:[Thread-1]: Medium Sensing completed, start to transmit at tick 34
+INFO:root:[Thread-1]: Packet start txing at tick 34
+INFO:root:[Thread-10] packet generated at tick 35 is now ready to send
+INFO:root:[is_fully_transmitted]: current_tick: 36 | send_time: 34 | D_TRANS: 12.0
+INFO:root:[Thread-10]: Medium is not busy at: 47
+INFO:root:[Thread-10]: Medium Sensing completed, start to transmit at tick 47
+INFO:root:[Thread-10]: Packet start txing at tick 47
+INFO:root:[Thread-16] packet generated at tick 47 is now ready to send
+INFO:root:[Thread-1]: Medium is not busy at: 47
+INFO:root:[Thread-1]: Medium Sensing completed, start to transmit at tick 47
+INFO:root:[Thread-1]: Packet start txing at tick 47
+INFO:root:[is_fully_transmitted]: current_tick: 48 | send_time: 47 | D_TRANS: 12.0
+INFO:root:[Thread-10]: Abort Transmission at tick 48
+INFO:root:[Thread-10]: Transmit jamming signal at tick 48
+INFO:root:[is_fully_transmitted]: current_tick: 48 | send_time: 47 | D_TRANS: 12.0
+INFO:root:[Thread-1]: Abort Transmission at tick 48
+INFO:root:[Thread-1]: Signal jammed at tick 48
+INFO:root:[Thread-1]: Start binary exponential backoff
+INFO:root:[Thread-1] packet generated at tick 46 is now ready to send
+INFO:root:[Thread-10]: jamming signal finished
+INFO:root:[Thread-10]: Start binary exponential backoff at tick 49
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/usr/lib/python2.7/threading.py", line 763, in run
+    self.__target(*self.__args, **self.__kwargs)
+  File "./simulator.py", line 346, in transmit_worker
+    send_time = current_tick + random.random(0, last_binary_exp)
+TypeError: random() takes no arguments (2 given)
+
+INFO:root:[Thread-10] packet generated at tick 35 is now ready to send
+INFO:root:[Thread-10]: Medium is not busy at: 50
+INFO:root:[Thread-10]: Medium Sensing completed, start to transmit at tick 50
+INFO:root:[Thread-10]: Packet start txing at tick 50
+Program is starting...
+Traceback (most recent call last):
+  File "./simulator.py", line 571, in <module>
+    init()
+  File "./simulator.py", line 568, in init
+    main(argsDict)
+  File "./simulator.py", line 468, in main
+    tickTock()
+  File "./simulator.py", line 452, in tickTock
+    all_updated = True
+KeyboardInterrupt
+Exception in thread Thread-14 (most likely raised during interpreter shutdown):
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+  File "/usr/lib/python2.7/threading.py", line 763, in run
+  File "./simulator.py", line 218, in transmit_worker
+<type 'exceptions.TypeError'>: 'NoneType' object has no attribute '__getitem__'
+Exception in thread Thread-2 (most likely raised during interpreter shutdown):
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+  File "/usr/lib/python2.7/threading.py", line 763, in run
+  File "./simulator.py", line 218, in transmit_worker
+<type 'exceptions.TypeError'>: 'NoneType' object has no attribute '__getitem__'
+Exception in thread Thread-15 (most likely raised during interpreter shutdown):
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+  File "/usr/lib/python2.7/threading.py", line 763, in run
+  File "./simulator.py", line 218, in transmit_worker
+<type 'exceptions.TypeError'>: 'NoneType' object has no attribute '__getitem__'
+Exception in thread Thread-19 (most likely raised during interpreter shutdown):
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+  File "/usr/lib/python2.7/threading.py", line 763, in run
+  File "./simulator.py", line 218, in transmit_worker
+<type 'exceptions.TypeError'>: 'NoneType' object has no attribute '__getitem__'
+Exception in thread Thread-6 (most likely raised during interpreter shutdown):
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+  File "/usr/lib/python2.7/threading.py", line 763, in run
+  File "./simulator.py", line 218, in transmit_worker
+<type 'exceptions.TypeError'>: 'NoneType' object has no attribute '__getitem__'
+Exception in thread Thread-11 (most likely raised during interpreter shutdown):
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+  File "/usr/lib/python2.7/threading.py", line 763, in run
+  File "./simulator.py", line 398, in transmit_worker
+<type 'exceptions.AttributeError'>: 'NoneType' object has no attribute 'info'
+Exception in thread Thread-4 (most likely raised during interpreter shutdown):
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+  File "/usr/lib/python2.7/threading.py", line 763, in run
+  File "./simulator.py", line 218, in transmit_worker
+<type 'exceptions.TypeError'>: 'NoneType' object has no attribute '__getitem__'
+Exception in thread Thread-9 (most likely raised during interpreter shutdown):
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+  File "/usr/lib/python2.7/threading.py", line 763, in run
+  File "./simulator.py", line 218, in transmit_worker
+<type 'exceptions.TypeError'>: 'NoneType' object has no attribute '__getitem__'
+Exception in thread Thread-16 (most likely raised during interpreter shutdown):
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+  File "/usr/lib/python2.7/threading.py", line 763, in run
+  File "./simulator.py", line 398, in transmit_worker
+<type 'exceptions.AttributeError'>: 'NoneType' object has no attribute 'info'
+Exception in thread Thread-3 (most likely raised during interpreter shutdown):
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+  File "/usr/lib/python2.7/threading.py", line 763, in run
+  File "./simulator.py", line 398, in transmit_worker
+<type 'exceptions.AttributeError'>: 'NoneType' object has no attribute 'info'
+Exception in thread Thread-7 (most likely raised during interpreter shutdown):
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+  File "/usr/lib/python2.7/threading.py", line 763, in run
+  File "./simulator.py", line 398, in transmit_worker
+<type 'exceptions.AttributeError'>: 'NoneType' object has no attribute 'info'
+Exception in thread Thread-18 (most likely raised during interpreter shutdown):
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+  File "/usr/lib/python2.7/threading.py", line 763, in run
+  File "./simulator.py", line 218, in transmit_worker
+<type 'exceptions.TypeError'>: 'NoneType' object has no attribute '__getitem__'
