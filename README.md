@@ -1,7 +1,5 @@
-ece358
+ECE 35X: Networking lab work.
 ======
-
-ECE 358: Computer Networks
 
 Project 1: M/D/1 and M/D/1/K Queue Simulator    
 Project 2: CSMA/CD Simulator.
